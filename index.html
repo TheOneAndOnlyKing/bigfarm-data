@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datepress — paste date ranges, get clean lines back</title>
+<meta name="description" content="A tiny in-browser tool that turns lines like “14/09 - 16/09 Landscape Architect” into a start date, an end date and an event name — with an optional year and JSON Lines output.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    color-scheme: light;
+    --paper: #F5F0E6;
+    --raise: #FBF8F1;
+    --ink: #211C15;
+    --ink70: rgba(33,28,21,.7);
+    --ink50: rgba(33,28,21,.52);
+    --ink35: rgba(33,28,21,.36);
+    --rule: rgba(33,28,21,.17);
+    --accent: #BE3A18;
+    --accent-soft: rgba(190,58,24,.09);
+    --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+    --serif: 'Fraunces', Georgia, serif;
+  }
+  html { background: var(--paper); }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: var(--serif); font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* faint paper grain */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: .05;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="180" height="180" filter="url(%23n)"/></svg>');
+  }
+  ::selection { background: var(--accent); color: var(--raise); }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: 0 26px; }
+
+  /* ── top bar ─────────────────────────────── */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 0 11px; border-bottom: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; }
+  .brand .mark { width: 8px; height: 8px; background: var(--accent); }
+  .topbar-note { color: var(--ink50); }
+
+  /* ── hero ────────────────────────────────── */
+  .hero { padding: 54px 0 6px; }
+  h1 { font-weight: 600; font-size: clamp(2.9rem, 6.5vw, 4.5rem); line-height: 1.02; letter-spacing: -.015em; }
+  h1 .dot { color: var(--accent); }
+  .lede { margin-top: 16px; max-width: 60ch; font-style: italic; font-size: 1.14rem; line-height: 1.55; color: var(--ink70); }
+
+  /* anatomy diagram of the input line */
+  .specimen { margin-top: 36px; }
+  .spec-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink50); margin-bottom: 14px; }
+  .spec-row { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; row-gap: 18px; }
+  .seg { display: inline-flex; flex-direction: column; align-items: center; }
+  .seg-box { font-family: var(--mono); font-size: 13px; font-weight: 500; line-height: 1; padding: 7px 11px; border: 1px solid var(--ink35); background: var(--raise); white-space: nowrap; }
+  .seg .tick { width: 1px; height: 11px; background: var(--ink35); margin-top: 5px; }
+  .seg-name { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink50); margin-top: 6px; }
+  .spec-dash { font-family: var(--mono); font-size: 13px; color: var(--accent); height: 29px; display: inline-flex; align-items: center; }
+  .seg-event { margin-left: 24px; }
+  .spec-notes { margin-top: 16px; font-family: var(--mono); font-size: 11.5px; line-height: 1.9; color: var(--ink50); }
+  .spec-notes b { color: var(--ink); font-weight: 500; }
+
+  /* ── settings bar ────────────────────────── */
+  .controls { margin-top: 44px; padding: 18px 0; border-top: 2px solid var(--ink); display: flex; align-items: flex-end; gap: 42px; flex-wrap: wrap; }
+  .field { display: flex; flex-direction: column; gap: 9px; }
+  .field-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink50); }
+  #yearInput {
+    font-family: var(--mono); font-size: 15px; color: var(--ink);
+    background: transparent; border: 1px solid var(--ink35);
+    padding: 8px 10px; width: 9ch; border-radius: 0; appearance: textfield; -moz-appearance: textfield;
+  }
+  #yearInput::-webkit-outer-spin-button, #yearInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  #yearInput:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .seg-control { display: flex; border: 1px solid var(--ink35); }
+  .seg-control button {
+    cursor: pointer; background: transparent; border: 0; padding: 6px 16px 7px;
+    display: flex; flex-direction: column; gap: 1px; align-items: flex-start;
+    border-right: 1px solid var(--ink35); color: var(--ink70);
+    transition: background .15s, color .15s;
+  }
+  .seg-control button:last-child { border-right: 0; }
+  .seg-control button b { font-family: var(--mono); font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .seg-control button small { font-family: var(--mono); font-size: 10px; letter-spacing: .05em; color: var(--ink50); }
+  .seg-control button.active { background: var(--ink); color: var(--raise); }
+  .seg-control button.active small { color: rgba(245,240,230,.62); }
+  .seg-control button:not(.active):hover { background: var(--accent-soft); color: var(--ink); }
+  .controls-hint { margin-left: auto; font-style: italic; font-size: .98rem; color: var(--ink50); }
+
+  /* ── the two panes ───────────────────────── */
+  .panes { position: relative; display: grid; grid-template-columns: 1fr 1fr; column-gap: 76px; margin-top: 26px; }
+  .panes::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--rule); }
+  .panes::after {
+    content: "→"; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--raise);
+    font-family: var(--mono); font-size: 15px;
+    display: flex; align-items: center; justify-content: center; user-select: none;
+  }
+  .panes.tick::after { animation: flow .5s ease; }
+  @keyframes flow { 50% { transform: translate(-50%,-50%) scale(1.3); background: var(--accent); } }
+
+  .pane { position: relative; display: flex; flex-direction: column; border: 1px solid var(--rule); border-top: 2px solid var(--ink); background: var(--raise); }
+  .pane-head { display: flex; flex-wrap: wrap; row-gap: 4px; align-items: center; gap: 14px; padding: 10px 14px; border-bottom: 1px solid var(--rule); font-family: var(--mono); }
+  .pane-tag { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+  .pane-meta { font-size: 11px; letter-spacing: .06em; color: var(--ink50); }
+  .pane-meta .flag { color: var(--accent); font-weight: 600; }
+  .pane-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+  .linklike {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+    background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer;
+    color: var(--ink50); padding: 2px 1px;
+  }
+  .linklike:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    padding: 6px 13px; cursor: pointer; border: 1px solid var(--ink);
+    background: var(--ink); color: var(--raise);
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink35); }
+  .btn.ghost:hover { background: transparent; color: var(--accent); border-color: var(--accent); }
+  .btn svg { flex: none; }
+
+  /* editor with line-number gutter */
+  .editor { display: flex; flex: 1; min-height: 380px; transition: box-shadow .15s; }
+  .editor:focus-within { box-shadow: inset 0 0 0 1px var(--accent); }
+  .gutter { position: relative; flex: none; width: 54px; overflow: hidden; border-right: 1px solid var(--rule); background: var(--paper); }
+  #gutterPre {
+    position: absolute; inset: 0; overflow: hidden; margin: 0;
+    font-family: var(--mono); font-size: 13px; line-height: 1.7;
+    text-align: right; white-space: pre; color: var(--ink35); padding: 12px 12px 0 4px;
+  }
+  #gutterPre .bad { color: var(--accent); font-weight: 600; }
+  #input {
+    flex: 1; border: 0; background: transparent; resize: none; outline: none;
+    font-family: var(--mono); font-size: 13px; line-height: 1.7;
+    padding: 12px 14px; color: var(--ink); caret-color: var(--accent); white-space: pre;
+  }
+  #input::placeholder { color: var(--ink35); }
+
+  /* flagged lines under the input */
+  .errors { border-top: 1px solid var(--rule); background: var(--accent-soft); padding: 10px 14px 12px; font-family: var(--mono); }
+  .err-head { display: block; font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+  .err-line {
+    display: flex; gap: 12px; align-items: baseline; width: 100%;
+    background: none; border: 0; cursor: pointer; font-family: var(--mono); font-size: 11.5px;
+    color: var(--ink70); padding: 2px 0; text-align: left;
+  }
+  .err-line b { color: var(--accent); font-weight: 600; flex: none; }
+  .err-raw { color: var(--ink70); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 44%; }
+  .err-why { color: var(--ink50); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .err-line:hover .err-raw, .err-line:hover .err-why { color: var(--ink); }
+  .err-more { display: block; font-size: 11px; color: var(--ink50); padding-top: 4px; }
+
+  /* output */
+  .out-body { position: relative; flex: 1; min-height: 380px; max-height: 560px; overflow: auto; font-family: var(--mono); font-size: 13px; line-height: 1.7; padding: 10px 0; }
+  .out-line { display: flex; gap: 12px; padding: 0 14px; white-space: pre; }
+  .out-line:hover { background: var(--accent-soft); }
+  .out-no { flex: none; width: 4ch; text-align: right; color: var(--ink35); user-select: none; overflow: hidden; }
+  .out-text { min-width: 0; }
+  .out-text .d { font-weight: 600; }
+  .out-text .ar { color: var(--accent); font-weight: 600; }
+  .out-text .sep { color: var(--ink35); }
+  .out-text .ev { color: var(--ink70); }
+  .out-text .k { color: var(--accent); font-weight: 500; }
+  .out-text .p { color: var(--ink35); }
+  .out-more { padding: 10px 14px; border-top: 1px dashed var(--rule); color: var(--ink50); font-size: 11px; font-family: var(--mono); }
+  .out-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-family: var(--serif); font-style: italic; font-size: 1.05rem; color: var(--ink35); pointer-events: none; }
+
+  /* the stamp */
+  .stamp {
+    position: absolute; left: 50%; top: 46%; z-index: 5;
+    transform: translate(-50%,-50%) rotate(-7deg);
+    font-family: var(--mono); font-weight: 600; font-size: 21px;
+    letter-spacing: .26em; text-transform: uppercase;
+    color: var(--accent); border: 3px solid var(--accent); border-radius: 3px;
+    padding: 9px 16px 9px 21px; background: rgba(251,248,241,.88);
+    opacity: 0; pointer-events: none;
+  }
+  .stamp.show { animation: stampIn 1.1s ease forwards; }
+  @keyframes stampIn {
+    0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-7deg) scale(1.65); }
+    12%  { opacity: 1; transform: translate(-50%,-50%) rotate(-7deg) scale(.96); }
+    22%  { transform: translate(-50%,-50%) rotate(-7deg) scale(1); }
+    72%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .pane-foot { border-top: 1px solid var(--rule); padding: 9px 14px; font-family: var(--mono); font-size: 11px; color: var(--ink50); display: flex; gap: 8px 20px; flex-wrap: wrap; align-items: baseline; }
+  .pane-foot b { color: var(--ink); font-weight: 600; }
+  .pane-foot .warn { color: var(--accent); }
+
+  .foot { margin-top: 58px; border-top: 1px solid var(--rule); padding: 18px 0 52px; display: flex; justify-content: space-between; gap: 12px 48px; flex-wrap: wrap; font-family: var(--mono); font-size: 11.5px; line-height: 1.8; color: var(--ink50); }
+  .foot b { color: var(--ink); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+  .foot .foot-l { display: block; }
+
+  @media (max-width: 940px) {
+    .panes { grid-template-columns: 1fr; column-gap: 0; row-gap: 34px; }
+    .panes::before, .panes::after { display: none; }
+    .controls-hint, .topbar-note { display: none; }
+    .editor, .out-body { min-height: 300px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="topbar">
+      <span class="brand"><span class="mark"></span>Datepress</span>
+      <span class="topbar-note">one file · everything local · nothing uploaded</span>
+    </div>
+    <div class="hero">
+      <h1>Datepress<span class="dot">.</span></h1>
+      <p class="lede">Paste raw date-range lists on the left; take clean, structured lines out on the right — a start date, an end date, and an event name, ready for reading, a spreadsheet, or the calendar page you’ll build next.</p>
+      <div class="specimen">
+        <div class="spec-label">anatomy of a line</div>
+        <div class="spec-row">
+          <span class="seg"><span class="seg-box">14/09</span><span class="tick"></span><span class="seg-name">start date</span></span>
+          <span class="spec-dash">–</span>
+          <span class="seg"><span class="seg-box">16/09</span><span class="tick"></span><span class="seg-name">end date</span></span>
+          <span class="seg seg-event"><span class="seg-box">Landscape&nbsp;Architect</span><span class="tick"></span><span class="seg-name">event name</span></span>
+        </div>
+        <p class="spec-notes">single days work too — <b>21/09 Event</b> &nbsp;·&nbsp; years already in your data (<b>14/09/2025</b>) are kept &nbsp;·&nbsp; ranges rolling into the next year (<b>28/12 - 03/01</b>) are understood &nbsp;·&nbsp; unreadable lines get flagged, never silently dropped</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <label class="field">
+      <span class="field-label">year to stamp on dates</span>
+      <input id="yearInput" type="number" inputmode="numeric" placeholder="none">
+    </label>
+    <div class="field">
+      <span class="field-label">output format</span>
+      <div class="seg-control" id="modeControl">
+        <button type="button" data-mode="readable" class="active"><b>Readable</b><small>plain list</small></button>
+        <button type="button" data-mode="machine"><b>Machine</b><small>json lines</small></button>
+      </div>
+    </div>
+    <span class="controls-hint">everything applies as you type — no button needed</span>
+  </div>
+
+  <main class="panes" id="panes">
+    <section class="pane">
+      <div class="pane-head">
+        <span class="pane-tag">01 — input</span>
+        <span class="pane-meta" id="inputMeta">0 lines</span>
+        <span class="pane-actions">
+          <button type="button" class="linklike" id="btnSample">sample</button>
+          <button type="button" class="linklike" id="btnClear">clear</button>
+        </span>
+      </div>
+      <div class="editor">
+        <div class="gutter" aria-hidden="true"><pre id="gutterPre"></pre></div>
+        <textarea id="input" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off"
+          aria-label="raw input lines"
+          placeholder="14/09 - 16/09 Landscape Architect&#10;21/09 Bricklaying Workshop&#10;28/09 - 02/10 Harvest Festival Prep"></textarea>
+      </div>
+      <div class="errors" id="errors" hidden></div>
+    </section>
+
+    <section class="pane">
+      <div class="pane-head">
+        <span class="pane-tag">02 — output</span>
+        <span class="pane-meta" id="modeMeta">plain text</span>
+        <span class="pane-actions">
+          <button type="button" class="btn" id="btnCopy">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>copy
+          </button>
+          <button type="button" class="btn ghost" id="btnSave">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5"/><path d="M4 20h16"/></svg>save
+          </button>
+        </span>
+      </div>
+      <div class="out-body" id="outBody">
+        <div id="outLines"></div>
+        <div class="out-empty" id="outEmpty">parsed lines will appear here</div>
+        <div class="out-more" id="outMore" hidden></div>
+      </div>
+      <div class="stamp" id="stamp" aria-hidden="true">copied</div>
+      <div class="pane-foot" id="stats">—</div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span class="foot-l">Runs entirely in this page — nothing you paste is uploaded anywhere.<br>Tip: Ctrl / ⌘ + Enter copies the output.</span>
+    <span><b>readable</b>&nbsp; one tidy line per event &nbsp;·&nbsp; <b>machine</b>&nbsp; JSON Lines with ISO&nbsp;8601 dates, one object per line — built to feed the calendar view you’re planning</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var input = $('input'), gutterPre = $('gutterPre'),
+      yearInput = $('yearInput'), outLines = $('outLines'),
+      outEmpty = $('outEmpty'), outMore = $('outMore'),
+      inputMeta = $('inputMeta'), modeMeta = $('modeMeta'),
+      errorsBox = $('errors'), statsBox = $('stats'),
+      stampEl = $('stamp'), panes = $('panes');
+
+  var SAMPLE =
+    '14/09 - 16/09 Landscape Architect\n' +
+    '02/09 - 05/09 Site Survey — Riverside\n' +
+    '21/09 Bricklaying Workshop\n' +
+    '28/09 - 02/10 Harvest Festival Prep\n' +
+    '08/09 - 11/09 Community Garden Build\n' +
+    'Sept 17–19: Tile Workshop\n' +
+    '09/09 - 13/09 Pavilion Assembly';
+
+  /* date [ / year ]  [ sep date [ / year ] ]  event-text  — sep can be -, –, — or "to" */
+  var LINE_RE = /^(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?(?:\s*(?:[-–—]|to)\s*(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?)?\s+(.+)$/i;
+
+  var mode = 'readable';
+  var parsed = [], skipped = [];
+  var debounceTimer = null, stampTimer = null;
+  var MAX_RENDER = 400, MAX_ERRORS = 5;
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function clip(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+
+  function defaultYear() {
+    var v = (yearInput.value || '').trim();
+    if (!v) return null;
+    var n = parseInt(v, 10);
+    if (!isFinite(n) || n < 0) return null;
+    return n < 100 ? 2000 + n : n;
+  }
+  function normYear(n) { return n < 100 ? 2000 + n : n; }
+  function realDate(d, m, y) {
+    if (m < 1 || m > 12) return false;
+    var yy = (y == null) ? 2001 : y;
+    var dt = new Date(yy, m - 1, d);
+    return dt.getMonth() === m - 1 && dt.getDate() === d;
+  }
+
+  function parseLine(raw, lineNo) {
+    var s = raw.trim();
+    if (!s) return { kind: 'blank' };
+    var m = LINE_RE.exec(s);
+    if (!m) {
+      if (/^\d{1,2}\s*\//.test(s)) return { kind: 'bad', reason: 'dates found, but no event name after them' };
+      return { kind: 'bad', reason: 'line doesn\u2019t start with a date like 14/09' };
+    }
+
+    var d1 = +m[1], mo1 = +m[2];
+    var y1 = (m[3] != null) ? normYear(+m[3]) : null;
+    var hasEnd = m[4] != null;
+    var d2 = 0, mo2 = 0, y2 = null;
+    if (hasEnd) {
+      d2 = +m[4]; mo2 = +m[5];
+      if (m[6] != null) y2 = normYear(+m[6]);
+    }
+
+    /* strip stray punctuation the separators sometimes leave behind */
+    var event = m[7].trim().replace(/^[\s:·|,\-–—]+/, '').trim();
+    if (!event) return { kind: 'bad', reason: 'no event name found' };
+
+    var dy = defaultYear();
+    var startY = (y1 != null) ? y1 : dy;
+
+    /* no explicit end year: if the end falls "before" the start, it's next year (e.g. 28/12 - 03/01) */
+    if (hasEnd && y2 == null) {
+      var base = (y1 != null) ? y1 : dy;
+      if (base != null) {
+        y2 = (mo2 < mo1 || (mo2 === mo1 && d2 < d1)) ? base + 1 : base;
+      }
+    }
+
+    if (!realDate(d1, mo1, startY)) return { kind: 'bad', reason: 'the start date isn\u2019t a real calendar date' };
+    if (hasEnd && !realDate(d2, mo2, y2)) return { kind: 'bad', reason: 'the end date isn\u2019t a real calendar date' };
+
+    var start = { d: d1, m: mo1, y: startY };
+    var end = hasEnd ? { d: d2, m: mo2, y: y2 } : { d: d1, m: mo1, y: startY };
+    return { kind: 'ok', lineNo: lineNo, start: start, end: end, event: event, single: !hasEnd };
+  }
+
+  function parseAll() {
+    var lines = input.value.replace(/\r/g, '').split('\n');
+    parsed = []; skipped = [];
+    for (var i = 0; i < lines.length; i++) {
+      var r = parseLine(lines[i], i + 1);
+      if (r.kind === 'ok') parsed.push(r);
+      else if (r.kind === 'bad') skipped.push({ lineNo: i + 1, raw: lines[i].trim(), reason: r.reason });
+    }
+    renderGutter(lines);
+    renderErrors();
+    renderOutput();
+    renderStats();
+    renderInputMeta(lines.length);
+  }
+
+  function renderInputMeta(total) {
+    var html = total + (total === 1 ? ' line' : ' lines');
+    if (skipped.length) html += ' · <span class="flag">' + skipped.length + ' flagged</span>';
+    inputMeta.innerHTML = html;
+  }
+
+  function renderGutter(lines) {
+    var badSet = {};
+    skipped.forEach(function (s) { badSet[s.lineNo] = true; });
+    var html = '';
+    for (var i = 1; i <= lines.length; i++) {
+      html += badSet[i] ? '<span class="bad">' + i + '</span>' : i;
+      if (i < lines.length) html += '\n';
+    }
+    gutterPre.innerHTML = html;
+  }
+
+  function renderErrors() {
+    if (!skipped.length) { errorsBox.hidden = true; errorsBox.innerHTML = ''; return; }
+    errorsBox.hidden = false;
+    var n = skipped.length;
+    var html = '<span class="err-head">' + n + (n === 1 ? ' line' : ' lines') + ' couldn\u2019t be read — click a row to jump to it</span>';
+    skipped.slice(0, MAX_ERRORS).forEach(function (s) {
+      html += '<button type="button" class="err-line" data-line="' + s.lineNo + '" title="' + esc(s.raw) + ' — ' + esc(s.reason) + '">' +
+        '<b>line ' + s.lineNo + '</b>' +
+        '<span class="err-raw">' + esc(clip(s.raw || '(empty)', 42)) + '</span>' +
+        '<span class="err-why">' + esc(s.reason) + '</span></button>';
+    });
+    if (n > MAX_ERRORS) html += '<span class="err-more">+ ' + (n - MAX_ERRORS) + ' more</span>';
+    errorsBox.innerHTML = html;
+  }
+
+  /* ── formatting ── */
+  function fmtReadable(dt) {
+    var s = pad2(dt.d) + '/' + pad2(dt.m);
+    if (dt.y != null) s += '/' + dt.y;
+    return s;
+  }
+  function iso(dt) {
+    if (dt.y != null) return dt.y + '-' + pad2(dt.m) + '-' + pad2(dt.d);
+    return pad2(dt.m) + '-' + pad2(dt.d);
+  }
+  function readableHTML(p) {
+    if (p.single) {
+      return '<span class="d">' + esc(fmtReadable(p.start)) + '</span><span class="sep"> · </span><span class="ev">' + esc(p.event) + '</span>';
+    }
+    return '<span class="d">' + esc(fmtReadable(p.start)) + '</span><span class="ar"> → </span><span class="d">' +
+      esc(fmtReadable(p.end)) + '</span><span class="sep"> · </span><span class="ev">' + esc(p.event) + '</span>';
+  }
+  function machineHTML(p) {
+    function kv(k, v, last) {
+      return '<span class="k">' + esc(JSON.stringify(k)) + '</span><span class="p">:</span><span class="v">' +
+        esc(JSON.stringify(v)) + '</span>' + (last ? '' : '<span class="p">,</span>');
+    }
+    return '<span class="p">{</span>' + kv('start', iso(p.start)) + kv('end', iso(p.end)) + kv('event', p.event, true) + '<span class="p">}</span>';
+  }
+  function readablePlain(p) {
+    if (p.single) return fmtReadable(p.start) + ' · ' + p.event;
+    return fmtReadable(p.start) + ' → ' + fmtReadable(p.end) + ' · ' + p.event;
+  }
+  function machinePlain(p) {
+    return JSON.stringify({ start: iso(p.start), end: iso(p.end), event: p.event });
+  }
+  function plainLines() {
+    return parsed.map(mode === 'readable' ? readablePlain : machinePlain);
+  }
+
+  function renderOutput() {
+    outLines.innerHTML = '';
+    if (!parsed.length) { outEmpty.style.display = 'flex'; outMore.hidden = true; return; }
+    outEmpty.style.display = 'none';
+    var frag = document.createDocumentFragment();
+    parsed.slice(0, MAX_RENDER).forEach(function (p) {
+      var row = document.createElement('div');
+      row.className = 'out-line';
+      var no = document.createElement('span');
+      no.className = 'out-no'; no.textContent = p.lineNo;
+      var tx = document.createElement('span');
+      tx.className = 'out-text';
+      tx.innerHTML = (mode === 'readable') ? readableHTML(p) : machineHTML(p);
+      row.appendChild(no); row.appendChild(tx);
+      frag.appendChild(row);
+    });
+    outLines.appendChild(frag);
+    if (parsed.length > MAX_RENDER) {
+      outMore.hidden = false;
+      outMore.textContent = 'showing the first ' + MAX_RENDER + ' of ' + parsed.length + ' lines — copy & save always include every one';
+    } else {
+      outMore.hidden = true;
+    }
+  }
+
+  function renderStats() {
+    if (!parsed.length) { statsBox.textContent = 'nothing parsed yet'; return; }
+    var withY = parsed.filter(function (p) { return p.start.y != null; });
+    var parts = ['<span><b>' + parsed.length + '</b> ' + (parsed.length === 1 ? 'event' : 'events') + '</span>'];
+    if (withY.length) {
+      function keyS(p) { return p.start.y * 10000 + p.start.m * 100 + p.start.d; }
+      function keyE(p) { return p.end.y * 10000 + p.end.m * 100 + p.end.d; }
+      var minP = withY[0], maxP = withY[0], longP = withY[0];
+      withY.forEach(function (p) {
+        if (keyS(p) < keyS(minP)) minP = p;
+        if (keyE(p) > keyE(maxP)) maxP = p;
+        if (keyE(p) - keyS(p) > keyE(longP) - keyS(longP)) longP = p;
+      });
+      var ms = function (p) { return Date.UTC(p.start.y, p.start.m - 1, p.start.d); };
+      var me = function (p) { return Date.UTC(p.end.y, p.end.m - 1, p.end.d); };
+      var days = Math.round((me(longP) - ms(longP)) / 86400000) + 1;
+      parts.push('<span>covered span <b>' + esc(fmtReadable(minP.start)) + ' → ' + esc(fmtReadable(maxP.end)) + '</b></span>');
+      parts.push('<span>longest <b>' + esc(clip(longP.event, 34)) + '</b> · ' + days + 'd</span>');
+    }
+    if (mode === 'machine' && defaultYear() == null && withY.length < parsed.length) {
+      parts.push('<span class="warn">no year set — machine dates are MM-DD; set a year above for full ISO dates</span>');
+    }
+    statsBox.innerHTML = parts.join('');
+  }
+
+  /* ── interactions ── */
+  function pulse() {
+    panes.classList.remove('tick');
+    void panes.offsetWidth;
+    panes.classList.add('tick');
+  }
+  function selectLine(n) {
+    var lines = input.value.replace(/\r/g, '').split('\n');
+    if (n < 1 || n > lines.length) return;
+    var start = 0;
+    for (var i = 0; i < n - 1; i++) start += lines[i].length + 1;
+    input.focus();
+    input.setSelectionRange(start, start + lines[n - 1].length);
+  }
+  function showStamp(text) {
+    stampEl.textContent = text;
+    stampEl.classList.remove('show');
+    void stampEl.offsetWidth;
+    stampEl.classList.add('show');
+    clearTimeout(stampTimer);
+    stampTimer = setTimeout(function () { stampEl.classList.remove('show'); }, 1150);
+  }
+
+  input.addEventListener('input', function () {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function () { parseAll(); pulse(); saveState(); }, 130);
+  });
+  input.addEventListener('scroll', function () { gutterPre.scrollTop = input.scrollTop; });
+
+  yearInput.addEventListener('input', function () {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function () { parseAll(); saveState(); }, 160);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (btn) {
+    btn.addEventListener('click', function () {
+      mode = btn.getAttribute('data-mode');
+      Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      modeMeta.textContent = (mode === 'readable') ? 'plain text' : 'json lines';
+      renderOutput(); renderStats(); pulse(); saveState();
+    });
+  });
+
+  $('btnSample').addEventListener('click', function () {
+    input.value = SAMPLE;
+    parseAll(); pulse(); saveState(); input.focus();
+  });
+  $('btnClear').addEventListener('click', function () {
+    input.value = '';
+    parseAll(); saveState(); input.focus();
+  });
+
+  errorsBox.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.err-line') : null;
+    if (b) selectLine(+b.getAttribute('data-line'));
+  });
+
+  function copyOut() {
+    var text = plainLines().join('\n');
+    if (!text) { showStamp('empty'); return; }
+    function done(ok) { showStamp(ok ? 'copied' : 'copy failed'); }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    } else fallback();
+  }
+  $('btnCopy').addEventListener('click', copyOut);
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); copyOut(); }
+  });
+
+  $('btnSave').addEventListener('click', function () {
+    var text = plainLines().join('\n');
+    if (!text) { showStamp('empty'); return; }
+    var isJson = mode === 'machine';
+    var blob = new Blob([text + '\n'], { type: isJson ? 'application/x-ndjson' : 'text/plain' });
+    var a = document.createElement('a');
+    var url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = isJson ? 'events.jsonl' : 'events-readable.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    showStamp('saved');
+  });
+
+  /* remember your work between visits */
+  var LS = 'datepress-v1';
+  function saveState() {
+    try {
+      localStorage.setItem(LS, JSON.stringify({ input: input.value, year: yearInput.value, mode: mode }));
+    } catch (e) {}
+  }
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(LS);
+      if (!raw) return false;
+      var s = JSON.parse(raw);
+      if (s && typeof s.input === 'string' && s.input.trim()) {
+        input.value = s.input;
+        if (typeof s.year === 'string') yearInput.value = s.year;
+        if (s.mode === 'machine' || s.mode === 'readable') mode = s.mode;
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  /* init */
+  if (!loadState()) {
+    input.value = SAMPLE;
+    yearInput.value = String(new Date().getFullYear());
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (b) {
+    b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+  });
+  modeMeta.textContent = (mode === 'readable') ? 'plain text' : 'json lines';
+  parseAll();
+})();
+</script>
+</body>
+</html>
