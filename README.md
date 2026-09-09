@@ -1,1 +1,1 @@
-# bigfarm-event-plan-processor
+# event-plan-processor
