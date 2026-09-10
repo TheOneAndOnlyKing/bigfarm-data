@@ -2,217 +2,160 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Datepress — paste date ranges, get clean lines back</title>
-<meta name="description" content="A tiny in-browser tool that turns lines like “14/09 - 16/09 Landscape Architect” into a start date, an end date and an event name — with an optional year and JSON Lines output.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datepress 2 — Bigfarm event parser</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%233E6B35'/><text x='32' y='43' font-family='Georgia,serif' font-size='30' font-weight='700' fill='%23F7F4EA' text-anchor='middle'>BE</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    color-scheme: light;
-    --paper: #F5F0E6;
-    --raise: #FBF8F1;
-    --ink: #211C15;
-    --ink70: rgba(33,28,21,.7);
-    --ink50: rgba(33,28,21,.52);
-    --ink35: rgba(33,28,21,.36);
-    --rule: rgba(33,28,21,.17);
-    --accent: #BE3A18;
-    --accent-soft: rgba(190,58,24,.09);
-    --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
-    --serif: 'Fraunces', Georgia, serif;
+    --paper: #F3F1E9; --ink: #22251E; --muted: #6C6F62; --line: rgba(34,37,30,.16);
+    --green: #3E6B35; --green-deep: #2C4F26; --warn: #A66A21; --accent-soft: rgba(62,107,53,.09);
+    --mono: 'IBM Plex Mono', monospace; --serif: 'Fraunces', Georgia, serif;
   }
   html { background: var(--paper); }
   body {
-    background: var(--paper); color: var(--ink);
-    font-family: var(--serif); font-optical-sizing: auto;
-    -webkit-font-smoothing: antialiased;
+    background: var(--paper); color: var(--ink); font-family: var(--serif);
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
-  /* faint paper grain */
   body::after {
-    content: ""; position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: .05;
+    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .05; z-index: 40;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="180" height="180" filter="url(%23n)"/></svg>');
   }
-  ::selection { background: var(--accent); color: var(--raise); }
-  button { font: inherit; color: inherit; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
+  ::selection { background: var(--green); color: #F6F4EB; }
   .page { max-width: 1120px; margin: 0 auto; padding: 0 26px; }
-
-  /* ── top bar ─────────────────────────────── */
   .topbar {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0 11px; border-bottom: 1px solid var(--rule);
+    padding: 14px 0 11px; border-bottom: 1px solid var(--line);
     font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
   }
   .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; }
-  .brand .mark { width: 8px; height: 8px; background: var(--accent); }
-  .topbar-note { color: var(--ink50); }
-
-  /* ── hero ────────────────────────────────── */
-  .hero { padding: 54px 0 6px; }
-  h1 { font-weight: 600; font-size: clamp(2.9rem, 6.5vw, 4.5rem); line-height: 1.02; letter-spacing: -.015em; }
-  h1 .dot { color: var(--accent); }
-  .lede { margin-top: 16px; max-width: 60ch; font-style: italic; font-size: 1.14rem; line-height: 1.55; color: var(--ink70); }
-
-  /* anatomy diagram of the input line */
-  .specimen { margin-top: 36px; }
-  .spec-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink50); margin-bottom: 14px; }
+  .brand .mark { width: 8px; height: 8px; background: var(--green); }
+  .topbar-note { color: var(--muted); }
+  .hero { padding: 46px 0 6px; }
+  h1 { font-weight: 600; font-size: clamp(2.7rem, 6vw, 4.2rem); line-height: 1.02; letter-spacing: -.015em; }
+  h1 .dot { color: var(--green); }
+  .lede { margin-top: 14px; max-width: 62ch; font-style: italic; font-size: 1.12rem; line-height: 1.5; color: var(--muted); }
+  .specimen { margin-top: 32px; }
+  .spec-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
   .spec-row { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; row-gap: 18px; }
   .seg { display: inline-flex; flex-direction: column; align-items: center; }
-  .seg-box { font-family: var(--mono); font-size: 13px; font-weight: 500; line-height: 1; padding: 7px 11px; border: 1px solid var(--ink35); background: var(--raise); white-space: nowrap; }
-  .seg .tick { width: 1px; height: 11px; background: var(--ink35); margin-top: 5px; }
-  .seg-name { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink50); margin-top: 6px; }
-  .spec-dash { font-family: var(--mono); font-size: 13px; color: var(--accent); height: 29px; display: inline-flex; align-items: center; }
-  .seg-event { margin-left: 24px; }
-  .spec-notes { margin-top: 16px; font-family: var(--mono); font-size: 11.5px; line-height: 1.9; color: var(--ink50); }
+  .seg-box { font-family: var(--mono); font-size: 13px; font-weight: 500; line-height: 1; padding: 7px 11px; border: 1px solid rgba(34,37,30,.36); background: #FBF8F1; white-space: nowrap; }
+  .seg .tick { width: 1px; height: 11px; background: rgba(34,37,30,.36); margin-top: 5px; }
+  .seg-name { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+  .spec-dash { font-family: var(--mono); font-size: 13px; color: var(--green); height: 29px; display: inline-flex; align-items: center; }
+  .seg-event { margin-left: 22px; }
+  .seg-fl .seg-box { border-color: var(--green); color: var(--green); font-weight: 600; }
+  .spec-notes { margin-top: 15px; font-family: var(--mono); font-size: 11.5px; line-height: 1.9; color: var(--muted); }
   .spec-notes b { color: var(--ink); font-weight: 500; }
-
-  /* ── settings bar ────────────────────────── */
-  .controls { margin-top: 44px; padding: 18px 0; border-top: 2px solid var(--ink); display: flex; align-items: flex-end; gap: 42px; flex-wrap: wrap; }
+  .controls { margin-top: 40px; padding: 18px 0; border-top: 2px solid var(--ink); display: flex; align-items: flex-end; gap: 42px; flex-wrap: wrap; }
   .field { display: flex; flex-direction: column; gap: 9px; }
-  .field-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink50); }
+  .field-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
   #yearInput {
-    font-family: var(--mono); font-size: 15px; color: var(--ink);
-    background: transparent; border: 1px solid var(--ink35);
-    padding: 8px 10px; width: 9ch; border-radius: 0; appearance: textfield; -moz-appearance: textfield;
+    font-family: var(--mono); font-size: 15px; color: var(--ink); background: transparent;
+    border: 1px solid rgba(34,37,30,.36); padding: 8px 10px; width: 9ch; border-radius: 0;
+    -moz-appearance: textfield; appearance: textfield;
   }
   #yearInput::-webkit-outer-spin-button, #yearInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  #yearInput:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .seg-control { display: flex; border: 1px solid var(--ink35); }
+  #yearInput:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+  .seg-control { display: flex; border: 1px solid rgba(34,37,30,.36); }
   .seg-control button {
     cursor: pointer; background: transparent; border: 0; padding: 6px 16px 7px;
     display: flex; flex-direction: column; gap: 1px; align-items: flex-start;
-    border-right: 1px solid var(--ink35); color: var(--ink70);
+    border-right: 1px solid rgba(34,37,30,.36); color: var(--muted); font-family: var(--mono);
     transition: background .15s, color .15s;
   }
   .seg-control button:last-child { border-right: 0; }
-  .seg-control button b { font-family: var(--mono); font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
-  .seg-control button small { font-family: var(--mono); font-size: 10px; letter-spacing: .05em; color: var(--ink50); }
-  .seg-control button.active { background: var(--ink); color: var(--raise); }
+  .seg-control button b { font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .seg-control button small { font-size: 10px; letter-spacing: .05em; color: var(--muted); }
+  .seg-control button.active { background: var(--ink); color: #FBF8F1; }
   .seg-control button.active small { color: rgba(245,240,230,.62); }
-  .seg-control button:not(.active):hover { background: var(--accent-soft); color: var(--ink); }
-  .controls-hint { margin-left: auto; font-style: italic; font-size: .98rem; color: var(--ink50); }
-
-  /* ── the two panes ───────────────────────── */
+  .controls-hint { margin-left: auto; font-style: italic; font-size: .95rem; color: var(--muted); }
   .panes { position: relative; display: grid; grid-template-columns: 1fr 1fr; column-gap: 76px; margin-top: 26px; }
-  .panes::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--rule); }
-  .panes::after {
-    content: "→"; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
-    width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--raise);
-    font-family: var(--mono); font-size: 15px;
-    display: flex; align-items: center; justify-content: center; user-select: none;
-  }
-  .panes.tick::after { animation: flow .5s ease; }
-  @keyframes flow { 50% { transform: translate(-50%,-50%) scale(1.3); background: var(--accent); } }
-
-  .pane { position: relative; display: flex; flex-direction: column; border: 1px solid var(--rule); border-top: 2px solid var(--ink); background: var(--raise); }
-  .pane-head { display: flex; flex-wrap: wrap; row-gap: 4px; align-items: center; gap: 14px; padding: 10px 14px; border-bottom: 1px solid var(--rule); font-family: var(--mono); }
+  .panes::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--line); }
+  .pane { border: 1px solid var(--line); border-top: 2px solid var(--ink); background: #FBF8F1; display: flex; flex-direction: column; }
+  .pane-head { display: flex; flex-wrap: wrap; row-gap: 4px; align-items: center; gap: 14px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: var(--mono); }
   .pane-tag { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
-  .pane-meta { font-size: 11px; letter-spacing: .06em; color: var(--ink50); }
-  .pane-meta .flag { color: var(--accent); font-weight: 600; }
-  .pane-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-
-  .linklike {
-    font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
-    background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer;
-    color: var(--ink50); padding: 2px 1px;
-  }
-  .linklike:hover { color: var(--accent); border-bottom-color: var(--accent); }
-
+  .pane-meta { font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+  .pane-meta .flag { color: var(--warn); font-weight: 600; }
+  .pane-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .linklike { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; color: var(--muted); padding: 2px 1px; }
+  .linklike:hover { color: var(--green); border-bottom-color: var(--green); }
   .btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
-    padding: 6px 13px; cursor: pointer; border: 1px solid var(--ink);
-    background: var(--ink); color: var(--raise);
-    transition: background .15s, border-color .15s, color .15s;
+    display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10.5px;
+    font-weight: 600; letter-spacing: .14em; text-transform: uppercase; padding: 6px 13px; cursor: pointer;
+    border: 1px solid var(--ink); background: var(--ink); color: #FBF8F1; transition: background .15s, border-color .15s;
   }
-  .btn:hover { background: var(--accent); border-color: var(--accent); }
-  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink35); }
-  .btn.ghost:hover { background: transparent; color: var(--accent); border-color: var(--accent); }
-  .btn svg { flex: none; }
-
-  /* editor with line-number gutter */
-  .editor { display: flex; flex: 1; min-height: 380px; transition: box-shadow .15s; }
-  .editor:focus-within { box-shadow: inset 0 0 0 1px var(--accent); }
-  .gutter { position: relative; flex: none; width: 54px; overflow: hidden; border-right: 1px solid var(--rule); background: var(--paper); }
-  #gutterPre {
-    position: absolute; inset: 0; overflow: hidden; margin: 0;
-    font-family: var(--mono); font-size: 13px; line-height: 1.7;
-    text-align: right; white-space: pre; color: var(--ink35); padding: 12px 12px 0 4px;
-  }
-  #gutterPre .bad { color: var(--accent); font-weight: 600; }
+  .btn:hover { background: var(--green); border-color: var(--green); }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: rgba(34,37,30,.36); }
+  .btn.ghost:hover { color: var(--green); border-color: var(--green); background: transparent; }
+  .editor { display: flex; flex: 1; min-height: 380px; position: relative; transition: box-shadow .15s; }
+  .editor:focus-within { box-shadow: inset 0 0 0 1px var(--green); }
+  .gutter { position: relative; flex: none; width: 54px; overflow: hidden; border-right: 1px solid var(--line); background: var(--paper); }
+  #gutterPre { position: absolute; inset: 0; overflow: hidden; margin: 0; font-family: var(--mono); font-size: 13px; line-height: 1.7; text-align: right; white-space: pre; color: rgba(34,37,30,.36); padding: 12px 12px 0 4px; }
+  #gutterPre .bad { color: var(--warn); font-weight: 600; }
   #input {
     flex: 1; border: 0; background: transparent; resize: none; outline: none;
-    font-family: var(--mono); font-size: 13px; line-height: 1.7;
-    padding: 12px 14px; color: var(--ink); caret-color: var(--accent); white-space: pre;
+    font-family: var(--mono); font-size: 13px; line-height: 1.7; padding: 12px 14px;
+    color: var(--ink); caret-color: var(--green); white-space: pre;
   }
-  #input::placeholder { color: var(--ink35); }
-
-  /* flagged lines under the input */
-  .errors { border-top: 1px solid var(--rule); background: var(--accent-soft); padding: 10px 14px 12px; font-family: var(--mono); }
-  .err-head { display: block; font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
-  .err-line {
-    display: flex; gap: 12px; align-items: baseline; width: 100%;
-    background: none; border: 0; cursor: pointer; font-family: var(--mono); font-size: 11.5px;
-    color: var(--ink70); padding: 2px 0; text-align: left;
-  }
-  .err-line b { color: var(--accent); font-weight: 600; flex: none; }
-  .err-raw { color: var(--ink70); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 44%; }
-  .err-why { color: var(--ink50); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .err-line:hover .err-raw, .err-line:hover .err-why { color: var(--ink); }
-  .err-more { display: block; font-size: 11px; color: var(--ink50); padding-top: 4px; }
-
-  /* output */
+  #input::placeholder { color: rgba(34,37,30,.36); }
+  .errors { border-top: 1px solid var(--line); background: var(--accent-soft); padding: 10px 14px 12px; font-family: var(--mono); }
+  .err-head { display: block; font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--warn); margin-bottom: 7px; }
+  .err-line { display: flex; gap: 12px; align-items: baseline; background: none; border: 0; cursor: pointer; font-family: var(--mono); font-size: 11.5px; color: var(--muted); padding: 2px 0; text-align: left; width: 100%; }
+  .err-line b { color: var(--warn); font-weight: 600; flex: none; }
+  .err-raw { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 44%; }
+  .err-why { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .err-line:hover .err-why, .err-line:hover .err-raw { color: var(--ink); }
   .out-body { position: relative; flex: 1; min-height: 380px; max-height: 560px; overflow: auto; font-family: var(--mono); font-size: 13px; line-height: 1.7; padding: 10px 0; }
-  .out-line { display: flex; gap: 12px; padding: 0 14px; white-space: pre; }
+  .out-line { display: flex; gap: 12px; padding: 1px 14px; white-space: pre; }
   .out-line:hover { background: var(--accent-soft); }
-  .out-no { flex: none; width: 4ch; text-align: right; color: var(--ink35); user-select: none; overflow: hidden; }
-  .out-text { min-width: 0; }
+  .out-no { flex: none; width: 4ch; text-align: right; color: rgba(34,37,30,.36); user-select: none; overflow: hidden; }
   .out-text .d { font-weight: 600; }
-  .out-text .ar { color: var(--accent); font-weight: 600; }
-  .out-text .sep { color: var(--ink35); }
-  .out-text .ev { color: var(--ink70); }
-  .out-text .k { color: var(--accent); font-weight: 500; }
-  .out-text .p { color: var(--ink35); }
-  .out-more { padding: 10px 14px; border-top: 1px dashed var(--rule); color: var(--ink50); font-size: 11px; font-family: var(--mono); }
-  .out-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-family: var(--serif); font-style: italic; font-size: 1.05rem; color: var(--ink35); pointer-events: none; }
-
-  /* the stamp */
+  .out-text .ar { color: var(--green); font-weight: 600; }
+  .out-text .sep { color: rgba(34,37,30,.36); }
+  .out-text .fl { color: var(--green); font-weight: 600; }
+  .out-text .k { color: var(--green); font-weight: 500; }
+  .out-text .p { color: rgba(34,37,30,.36); }
+  .out-more { padding: 10px 14px; border-top: 1px dashed var(--line); color: var(--muted); font-size: 11px; }
+  .out-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-family: var(--serif); font-style: italic; color: rgba(34,37,30,.36); font-size: 1.05rem; pointer-events: none; }
+  .warns { border-bottom: 1px dashed var(--line); padding: 8px 14px 10px; font-family: var(--mono); font-size: 11px; color: var(--warn); line-height: 1.8; }
+  .warns b { font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 10px; display: block; margin-bottom: 2px; }
+  .warns .wrow { display: flex; gap: 10px; background: none; border: 0; padding: 1px 0; cursor: pointer; color: inherit; text-align: left; font-family: var(--mono); font-size: 11px; }
+  .warns .wrow:hover { color: var(--ink); }
+  .warns .wfix { color: var(--muted); }
+  .filebar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 14px; border-top: 1px solid var(--line); background: var(--accent-soft); font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .filebar b { color: var(--ink); font-weight: 600; }
   .stamp {
-    position: absolute; left: 50%; top: 46%; z-index: 5;
-    transform: translate(-50%,-50%) rotate(-7deg);
-    font-family: var(--mono); font-weight: 600; font-size: 21px;
-    letter-spacing: .26em; text-transform: uppercase;
-    color: var(--accent); border: 3px solid var(--accent); border-radius: 3px;
-    padding: 9px 16px 9px 21px; background: rgba(251,248,241,.88);
-    opacity: 0; pointer-events: none;
+    position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-7deg);
+    font-family: var(--mono); font-weight: 600; font-size: 21px; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--green); border: 3px solid var(--green); border-radius: 3px; padding: 9px 16px 9px 21px;
+    background: rgba(251,248,241,.88); opacity: 0; pointer-events: none; z-index: 5;
   }
   .stamp.show { animation: stampIn 1.1s ease forwards; }
   @keyframes stampIn {
-    0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-7deg) scale(1.65); }
-    12%  { opacity: 1; transform: translate(-50%,-50%) rotate(-7deg) scale(.96); }
-    22%  { transform: translate(-50%,-50%) rotate(-7deg) scale(1); }
-    72%  { opacity: 1; }
+    0% { opacity: 0; transform: translate(-50%,-50%) rotate(-7deg) scale(1.65); }
+    12% { opacity: 1; transform: translate(-50%,-50%) rotate(-7deg) scale(.96); }
+    22% { transform: translate(-50%,-50%) rotate(-7deg) scale(1); }
+    72% { opacity: 1; }
     100% { opacity: 0; }
   }
-
-  .pane-foot { border-top: 1px solid var(--rule); padding: 9px 14px; font-family: var(--mono); font-size: 11px; color: var(--ink50); display: flex; gap: 8px 20px; flex-wrap: wrap; align-items: baseline; }
-  .pane-foot b { color: var(--ink); font-weight: 600; }
-  .pane-foot .warn { color: var(--accent); }
-
-  .foot { margin-top: 58px; border-top: 1px solid var(--rule); padding: 18px 0 52px; display: flex; justify-content: space-between; gap: 12px 48px; flex-wrap: wrap; font-family: var(--mono); font-size: 11.5px; line-height: 1.8; color: var(--ink50); }
+  .foot { margin-top: 54px; border-top: 1px solid var(--line); padding: 18px 0 52px; display: flex; justify-content: space-between; gap: 12px 48px; flex-wrap: wrap; font-family: var(--mono); font-size: 11.5px; line-height: 1.8; color: var(--muted); }
   .foot b { color: var(--ink); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
-  .foot .foot-l { display: block; }
-
-  @media (max-width: 940px) {
+  .drop { position: fixed; inset: 14px; z-index: 100; display: none; align-items: center; justify-content: center; border: 2px dashed var(--green); border-radius: 18px; background: var(--accent-soft); }
+  .drop.on { display: flex; }
+  .drop-in { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--green); }
+  .drop-in b { font-family: var(--serif); font-size: 22px; color: var(--ink); }
+  .drop-in span { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+  @media (max-width: 920px) {
     .panes { grid-template-columns: 1fr; column-gap: 0; row-gap: 34px; }
-    .panes::before, .panes::after { display: none; }
+    .panes::before { display: none; }
     .controls-hint, .topbar-note { display: none; }
-    .editor, .out-body { min-height: 300px; }
+    .editor, #input { min-height: 300px; }
   }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
@@ -220,12 +163,12 @@
 
   <header>
     <div class="topbar">
-      <span class="brand"><span class="mark"></span>Datepress</span>
-      <span class="topbar-note">one file · everything local · nothing uploaded</span>
+      <span class="brand"><span class="mark"></span>Datepress 2</span>
+      <span class="topbar-note">knows the section map · applies the FL tag · fixes the agreed glitches</span>
     </div>
     <div class="hero">
       <h1>Datepress<span class="dot">.</span></h1>
-      <p class="lede">Paste raw date-range lists on the left; take clean, structured lines out on the right — a start date, an end date, and an event name, ready for reading, a spreadsheet, or the calendar page you’ll build next.</p>
+      <p class="lede">Paste a year of raw event lines on the left — get back clean, canonical names, Farmer's League tags, and sections, ready for the Bigfarm Calendar.</p>
       <div class="specimen">
         <div class="spec-label">anatomy of a line</div>
         <div class="spec-row">
@@ -233,28 +176,29 @@
           <span class="spec-dash">–</span>
           <span class="seg"><span class="seg-box">16/09</span><span class="tick"></span><span class="seg-name">end date</span></span>
           <span class="seg seg-event"><span class="seg-box">Landscape&nbsp;Architect</span><span class="tick"></span><span class="seg-name">event name</span></span>
+          <span class="seg seg-fl"><span class="seg-box">- FL</span><span class="tick"></span><span class="seg-name">FL tag · optional</span></span>
         </div>
-        <p class="spec-notes">single days work too — <b>21/09 Event</b> &nbsp;·&nbsp; years already in your data (<b>14/09/2025</b>) are kept &nbsp;·&nbsp; ranges rolling into the next year (<b>28/12 - 03/01</b>) are understood &nbsp;·&nbsp; unreadable lines get flagged, never silently dropped</p>
+        <p class="spec-notes">old spellings are fixed automatically · annotations like <b>(Farmer's League)</b> become FL tags · a Village Fair / Fishing pair with no annotations defaults to <b>Village Fair - FL</b> · unrecognised names are kept but flagged, never silently changed · paste one year at a time and set its year above</p>
       </div>
     </div>
   </header>
 
   <div class="controls">
     <label class="field">
-      <span class="field-label">year to stamp on dates</span>
+      <span class="field-label">year for this paste</span>
       <input id="yearInput" type="number" inputmode="numeric" placeholder="none">
     </label>
     <div class="field">
       <span class="field-label">output format</span>
       <div class="seg-control" id="modeControl">
-        <button type="button" data-mode="readable" class="active"><b>Readable</b><small>plain list</small></button>
+        <button type="button" data-mode="readable" class="active"><b>Readable</b><small>corrected list</small></button>
         <button type="button" data-mode="machine"><b>Machine</b><small>json lines</small></button>
       </div>
     </div>
     <span class="controls-hint">everything applies as you type — no button needed</span>
   </div>
 
-  <main class="panes" id="panes">
+  <main class="panes">
     <section class="pane">
       <div class="pane-head">
         <span class="pane-tag">01 — input</span>
@@ -267,8 +211,7 @@
       <div class="editor">
         <div class="gutter" aria-hidden="true"><pre id="gutterPre"></pre></div>
         <textarea id="input" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off"
-          aria-label="raw input lines"
-          placeholder="14/09 - 16/09 Landscape Architect&#10;21/09 Bricklaying Workshop&#10;28/09 - 02/10 Harvest Festival Prep"></textarea>
+          aria-label="raw input lines" placeholder="02/09 - 05/09 Village Fair - FL&#10;19/08 - 22/08 Village Fair (Farmer's League)&#10;29/08 - new Farmer's League starts"></textarea>
       </div>
       <div class="errors" id="errors" hidden></div>
     </section>
@@ -276,270 +219,525 @@
     <section class="pane">
       <div class="pane-head">
         <span class="pane-tag">02 — output</span>
-        <span class="pane-meta" id="modeMeta">plain text</span>
+        <span class="pane-meta" id="modeMeta">corrected list</span>
         <span class="pane-actions">
-          <button type="button" class="btn" id="btnCopy">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>copy
-          </button>
-          <button type="button" class="btn ghost" id="btnSave">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5"/><path d="M4 20h16"/></svg>save
-          </button>
+          <button type="button" class="btn ghost" id="btnAdd" title="Append this paste to the events file you're building">+ add to file</button>
+          <button type="button" class="btn" id="btnCopy"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>copy</button>
+          <button type="button" class="btn ghost" id="btnSave"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5"/><path d="M4 20h16"/></svg>save</button>
         </span>
       </div>
       <div class="out-body" id="outBody">
+        <div id="warnsSlot"></div>
         <div id="outLines"></div>
         <div class="out-empty" id="outEmpty">parsed lines will appear here</div>
         <div class="out-more" id="outMore" hidden></div>
       </div>
+      <div class="filebar" id="fileBar" hidden>
+        <span>events file · <b id="fbCount">0</b> events</span>
+        <button type="button" class="linklike" id="fbCopy">copy file</button>
+        <button type="button" class="linklike" id="fbSave">save events.jsonl</button>
+        <button type="button" class="linklike" id="fbClear">clear</button>
+      </div>
       <div class="stamp" id="stamp" aria-hidden="true">copied</div>
-      <div class="pane-foot" id="stats">—</div>
     </section>
   </main>
 
   <footer class="foot">
-    <span class="foot-l">Runs entirely in this page — nothing you paste is uploaded anywhere.<br>Tip: Ctrl / ⌘ + Enter copies the output.</span>
-    <span><b>readable</b>&nbsp; one tidy line per event &nbsp;·&nbsp; <b>machine</b>&nbsp; JSON Lines with ISO&nbsp;8601 dates, one object per line — built to feed the calendar view you’re planning</span>
+    <span class="foot-l">Runs entirely in this page — nothing you paste is uploaded anywhere.<br>Workflow: paste one year → set its year → <b>+ add to file</b> → repeat per year → <b>save events.jsonl</b>.</span>
+    <span><b>readable</b>&nbsp; the corrected list, one line per event &nbsp;·&nbsp; <b>machine</b>&nbsp; JSON Lines with section + fl — the file the calendar reads</span>
   </footer>
 </div>
+
+<div class="drop" id="drop">
+  <div class="drop-in">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"/></svg>
+    <b>Drop your events file</b><span>raw list · or machine .jsonl to re-normalise</span>
+  </div>
+</div>
+<input type="file" id="fileInput" accept=".jsonl,.json,.txt" hidden>
 
 <script>
 (function () {
   'use strict';
 
-  var $ = function (id) { return document.getElementById(id); };
-  var input = $('input'), gutterPre = $('gutterPre'),
-      yearInput = $('yearInput'), outLines = $('outLines'),
-      outEmpty = $('outEmpty'), outMore = $('outMore'),
-      inputMeta = $('inputMeta'), modeMeta = $('modeMeta'),
-      errorsBox = $('errors'), statsBox = $('stats'),
-      stampEl = $('stamp'), panes = $('panes');
+  /* ══════════════ THE MAP — sections, order & caps (mirrors the calendar) ══════════════ */
+  const SECTIONS = [
+    { name: 'Weekly events', events: ['Village Fair', 'Fishing Hard Worker Event', 'Hard Worker Event', 'Cooperative Hard Worker Event', 'Cooperative Championship'] },
+    { name: 'Monthly events', events: ['Cruise Ship', 'Goldfish Rescue', 'Pleasure Park', 'Urgent Delivery', 'Urgent Delivery (Gourmet Farm)', 'Shinkei-Suijaku', 'Pair Finder'] },
+    { name: 'Dream worlds', events: ["Greta's Dream World", "Tessa's Dream World", "Tessa's Dream World (Missions)"] },
+    { name: 'Background events', events: ['Horse Season', "Farmer's League", 'Worldwide Championship'] },
+    { name: 'Seasons', events: ['Spring Season', 'Summer Season', 'Autumn Season', 'Winter Season', 'Christmas Season'] },
+    { name: 'Temporary farms', events: ['Festive Farm', 'Northern Lights Farm', 'Viking Farm', 'Tropical Farm', 'Candy Farm'] },
+    { name: 'Search events', events: ['Candy Search', 'Mushroom Search Event', "Valentine's Search Event", 'Easter Egg Hunt', 'Summer Time Search Event', 'Halloween Search Event', 'Winter Search Event'] },
+    { name: 'Yearly events', events: ['Global Point Event', 'Chinese New Year', "Saint Patrick's Day", 'Golden Week Event', 'Tailgate Party', 'Oktoberfest', "Santa's Workshop", 'Advent Calendar', 'Big Farm Anniversary Event', 'Football Fever'] },
+    { name: 'Themed events', events: ['A Hint of Hawaii', "Here's to Nature", 'Not of this World', 'Mysterious Asia', 'Fairytale Time', 'Culinary Campaign', 'Three Weddings and a Rigmarole'] },
+    { name: 'Minor events', events: ['A Hero for Piggles', 'My bees are gone!', 'Fortune Teller', 'Landscape Architect'] }
+  ];
+  const WEEKLY = ['Village Fair', 'Fishing Hard Worker Event', 'Hard Worker Event', 'Cooperative Hard Worker Event', 'Cooperative Championship'];
 
-  var SAMPLE =
-    '14/09 - 16/09 Landscape Architect\n' +
-    '02/09 - 05/09 Site Survey — Riverside\n' +
-    '21/09 Bricklaying Workshop\n' +
-    '28/09 - 02/10 Harvest Festival Prep\n' +
-    '08/09 - 11/09 Community Garden Build\n' +
-    'Sept 17–19: Tile Workshop\n' +
-    '09/09 - 13/09 Pavilion Assembly';
+  /* every old spelling → canonical (keys lower-case, single-spaced). Parenthetical FL
+     annotations are stripped before this lookup, so they need no entries here. */
+  const NAME_MAP = {
+    /* weekly family */
+    'fishing hwe': 'Fishing Hard Worker Event',
+    "fishing hardworker's": 'Fishing Hard Worker Event',
+    "fishing hardworker's event": 'Fishing Hard Worker Event',
+    "fishing hard worker's": 'Fishing Hard Worker Event',
+    'fishing hard worker': 'Fishing Hard Worker Event',
+    'fishing': 'Fishing Hard Worker Event',
+    'cooperative hwe': 'Cooperative Hard Worker Event',
+    'coop hwe': 'Cooperative Hard Worker Event',
+    "coop hard worker's event": 'Cooperative Hard Worker Event',
+    "coop hardworker's event": 'Cooperative Hard Worker Event',
+    "cooperative hardworker's event": 'Cooperative Hard Worker Event',
+    "coop hardworker's": 'Cooperative Hard Worker Event',
+    'coop hardworker event': 'Cooperative Hard Worker Event',
+    "coop hard worker's": 'Cooperative Hard Worker Event',
+    'coop hard worker event': 'Cooperative Hard Worker Event',
+    "hardworker's event": 'Hard Worker Event',
+    "hard worker's event": 'Hard Worker Event',
+    "hardworker's": 'Hard Worker Event',
+    'hardworker event': 'Hard Worker Event',
+    'coop championship': 'Cooperative Championship',
+    'cooperative tournament': 'Cooperative Championship',
+    /* dream worlds */
+    "greta's dreamworld": "Greta's Dream World",
+    "tessa's dreamworld": "Tessa's Dream World",
+    "tessa's dream world withoutmissions": "Tessa's Dream World",
+    "tessa's dream world with missions": "Tessa's Dream World (Missions)",
+    "tessa's dream world missions": "Tessa's Dream World (Missions)",
+    "tessa's dream world with mission": "Tessa's Dream World (Missions)",
+    "tessa's dreamworld with missions": "Tessa's Dream World (Missions)",
+    /* leagues */
+    "farmers' league": "Farmer's League",
+    'farmers league': "Farmer's League",
+    'world wide championship': 'Worldwide Championship',
+    'worldwide championship': 'Worldwide Championship',
+    /* small stuff */
+    'fortune teller': 'Fortune Teller',
+    'fortuner teller': 'Fortune Teller',
+    'shinkei suijaku': 'Shinkei-Suijaku',
+    'landcape architect': 'Landscape Architect',
+    'goldfish rescue': 'Goldfish Rescue',
+    'culinary campaign': 'Culinary Campaign',
+    'advent calendar': 'Advent Calendar',
+    'mysterious asia': 'Mysterious Asia',
+    'not of this world': 'Not of this World',
+    "here's to nature!": "Here's to Nature",
+    'fairytale time': 'Fairytale Time',
+    'fairytale': 'Fairytale Time',
+    'big farm anniversary event': 'Big Farm Anniversary Event',
+    'a hint of hawaii': 'A Hint of Hawaii',
+    'urgent delivery': 'Urgent Delivery',
+    'urgent delivery gourmet farm': 'Urgent Delivery (Gourmet Farm)',
+    /* renames & folds */
+    'save the bees!': 'My bees are gone!',
+    'save the bees': 'My bees are gone!',
+    'save piggles': 'A Hero for Piggles',
+    'wedding planner': 'Three Weddings and a Rigmarole',
+    'three weddings and a rigmarole': 'Three Weddings and a Rigmarole',
+    'easter search event': 'Easter Egg Hunt',
+    'halloween search': 'Halloween Search Event',
+    'mushroom search': 'Mushroom Search Event',
+    "valentine's": "Valentine's Search Event",
+    "valentine's search": "Valentine's Search Event",
+    'summer search event': 'Summer Time Search Event',
+    'summer time': 'Summer Time Search Event',
+    'golden week': 'Golden Week Event',
+    "st. patrick's event": "Saint Patrick's Day",
+    'aloha from hawaii': 'A Hint of Hawaii',
+    'hint of hawaii': 'A Hint of Hawaii',
+    'xmas viking farm': 'Viking Farm',
+    'christmas viking farm': 'Viking Farm',
+    'christmas northern lights farm': 'Northern Lights Farm',
+    'island farm': 'Tropical Farm',
+    'food truck': 'Culinary Campaign',
+    'big farm 11th anniversary': 'Big Farm Anniversary Event: 11th',
+    /* horse season */
+    'new horse season': 'Horse Season',
+    'horse season movie heroes': 'Horse Season: Movie Heroes',
+    'new horse season - yeti': 'Horse Season: Yeti',
+    'new horse season - best of 2017': 'Horse Season: Best of 2017'
+  };
 
-  /* date [ / year ]  [ sep date [ / year ] ]  event-text  — sep can be -, –, — or "to" */
-  var LINE_RE = /^(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?(?:\s*(?:[-–—]|to)\s*(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?)?\s+(.+)$/i;
+  const CANON = new Map();
+  SECTIONS.forEach(s => s.events.forEach(n => CANON.set(n.toLowerCase(), { name: n, section: s.name })));
 
-  var mode = 'readable';
-  var parsed = [], skipped = [];
-  var debounceTimer = null, stampTimer = null;
-  var MAX_RENDER = 400, MAX_ERRORS = 5;
+  /* full-line fixes agreed along the way */
+  const LINE_FIXES = [
+    { re: /new\s+farmer'?s\s+league\s+starts/i, to: () => ["29/08 - 11/10 Farmer's League"], note: "note line became 29/08 – 11/10 Farmer's League" },
+    { re: /pl server only/i, to: () => [], note: 'PL-server Cruise Ship test line removed' },
+    { re: /^02\/04\s*-\s*09\/04\s+global point event$/i, to: () => [], note: 'stray 02/04 – 09/04 Global Point Event removed' },
+    { re: /^22\/08\s*-\s*26\/08\s+cruise ship$/i, to: () => ['22/08 - 26/08 Cruise Ship - FL'], note: 'latest Cruise Ship run tagged - FL' }
+  ];
+  const PREFIXES = ['theme event:', 'themed event:'];
 
-  function pad2(n) { return (n < 10 ? '0' : '') + n; }
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
+  const M_L = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const M_S = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MS = 86400000;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const clip = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  const LINE_RE = /^(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?(?:\s*(?:[-–—]|to)\s*(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?)?\s+(.+)$/i;
+
+  const SAMPLE = [
+    '02/09 - 05/09 Village Fair - FL',
+    '02/09 - 05/09 Fishing Hard Worker Event',
+    '05/09 - 09/09 Cooperative Championship',
+    '09/09 - 12/09 Cooperative Hard Worker Event',
+    '03/09 - 10/09 Greta\'s Dream World',
+    '14/09 - 16/09 Landscape Architect',
+    '19/08 - 22/08 Village Fair (Farmer\'s League)',
+    '19/08 - 22/08 Fishing HWE',
+    '26/08 - 07/10 Farmer\'s League',
+    '22/08 - 26/08 Cruise Ship - FL',
+    '31/08 - 27/09 Candy Farm',
+    '12/09 - 19/09 Tessa\'s Dream World with Missions',
+    '10/11 - 17/11 Food Truck',
+    'Sept 17-19: Tile Workshop'
+  ].join('\n');
+
+  /* ── state ── */
+  let mode = 'readable';
+  let parsed = [], skipped = 0, warns = [];
+  let fileLines = [];
+  let debounceTimer = null, stampTimer = null;
+
+  const input = $('#input'), gutterPre = $('#gutterPre'), outLines = $('#outLines'),
+        outEmpty = $('#outEmpty'), outMore = $('#outMore'), inputMeta = $('#inputMeta'),
+        errorsBox = $('#errors'), warnsSlot = $('#warnsSlot'), stampEl = $('#stamp'),
+        yearInput = $('#yearInput'), fileBar = $('#fileBar');
+
+  function saveState() {
+    try { localStorage.setItem('datepress2', JSON.stringify({ input: input.value, year: yearInput.value, mode })); } catch (e) {}
   }
-  function clip(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+  function loadState() {
+    try {
+      const s = JSON.parse(localStorage.getItem('datepress2') || '{}');
+      if (typeof s.input === 'string' && s.input.trim()) input.value = s.input;
+      if (typeof s.year === 'string') yearInput.value = s.year;
+      if (s.mode === 'readable' || s.mode === 'machine') mode = s.mode;
+      const f = JSON.parse(localStorage.getItem('datepress2-file') || '[]');
+      if (Array.isArray(f)) fileLines = f;
+    } catch (e) {}
+  }
+  function saveFile() {
+    try { localStorage.setItem('datepress2-file', JSON.stringify(fileLines)); } catch (e) {}
+  }
 
+  /* ── name machinery ── */
+  function isFLParen(s) {
+    const t = s.toLowerCase();
+    if (t.includes('gourmet') || t.includes('mission') || t.includes('server')) return false;
+    const hasFl = /\bfl\b/.test(t) || t.includes('farmer') || t.includes('farmers');
+    return hasFl && (t.includes('league') || /\bfl\b/.test(t));
+  }
+  function lookupName(name) {
+    const key = name.toLowerCase().replace(/\s+/g, ' ').trim();
+    if (NAME_MAP[key]) {
+      const c = CANON.get(NAME_MAP[key].toLowerCase());
+      return { name: NAME_MAP[key], known: true, section: c ? c.section : 'Unsorted' };
+    }
+    if (CANON.has(key)) return { name: CANON.get(key).name, known: true, section: CANON.get(key).section };
+    const hs = key.match(/^horse season:\s*(.+)$/);
+    if (hs) return { name: 'Horse Season: ' + name.replace(/^horse season:\s*/i, ''), known: true, section: 'Background events' };
+    const bfa = key.match(/^big farm anniversary event:\s*(.+)$/);
+    if (bfa) return { name: 'Big Farm Anniversary Event: ' + name.replace(/^big farm anniversary event:\s*/i, ''), known: true, section: 'Yearly events' };
+    return { name: name, known: false, section: 'Unsorted' };
+  }
+
+  /* ── date helpers (unchanged from v1) ── */
   function defaultYear() {
-    var v = (yearInput.value || '').trim();
+    const v = (yearInput.value || '').trim();
     if (!v) return null;
-    var n = parseInt(v, 10);
+    const n = parseInt(v, 10);
     if (!isFinite(n) || n < 0) return null;
     return n < 100 ? 2000 + n : n;
   }
-  function normYear(n) { return n < 100 ? 2000 + n : n; }
+  const normYear = n => n < 100 ? 2000 + n : n;
   function realDate(d, m, y) {
     if (m < 1 || m > 12) return false;
-    var yy = (y == null) ? 2001 : y;
-    var dt = new Date(yy, m - 1, d);
+    const yy = (y == null) ? 2001 : y;
+    const dt = new Date(yy, m - 1, d);
     return dt.getMonth() === m - 1 && dt.getDate() === d;
   }
+  function parseISO(v) {
+    if (typeof v !== 'string') return null;
+    const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (!m) return null;
+    const y = +m[1], mo = +m[2], d = +m[3];
+    const dt = new Date(Date.UTC(y, mo - 1, d));
+    if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+    return Date.UTC(y, mo - 1, d);
+  }
 
-  function parseLine(raw, lineNo) {
-    var s = raw.trim();
-    if (!s) return { kind: 'blank' };
-    var m = LINE_RE.exec(s);
+  /* ── the pipeline ── */
+  function processLine(line, lineNo, out, errs, wlist) {
+    const m = LINE_RE.exec(line);
     if (!m) {
-      if (/^\d{1,2}\s*\//.test(s)) return { kind: 'bad', reason: 'dates found, but no event name after them' };
-      return { kind: 'bad', reason: 'line doesn\u2019t start with a date like 14/09' };
+      if (/^\d{1,2}\s*\//.test(line)) errs.push({ lineNo, raw: line, reason: 'dates found, but no event name after them' });
+      else errs.push({ lineNo, raw: line, reason: 'line doesn’t start with a date like 14/09' });
+      return;
     }
-
-    var d1 = +m[1], mo1 = +m[2];
-    var y1 = (m[3] != null) ? normYear(+m[3]) : null;
-    var hasEnd = m[4] != null;
-    var d2 = 0, mo2 = 0, y2 = null;
+    const d1 = +m[1], mo1 = +m[2];
+    const y1 = (m[3] != null) ? normYear(+m[3]) : null;
+    const hasEnd = m[4] != null;
+    let d2 = 0, mo2 = 0, y2 = null;
     if (hasEnd) {
       d2 = +m[4]; mo2 = +m[5];
       if (m[6] != null) y2 = normYear(+m[6]);
     }
+    let name = (m[7] || '').replace(/^[\s:·|,\-–—]+/, '').replace(/\s+/g, ' ').trim();
+    if (!name) { errs.push({ lineNo, raw: line, reason: 'no event name found' }); return; }
 
-    /* strip stray punctuation the separators sometimes leave behind */
-    var event = m[7].trim().replace(/^[\s:·|,\-–—]+/, '').trim();
-    if (!event) return { kind: 'bad', reason: 'no event name found' };
+    let fl = false, flHint = false;
+    const flm = name.match(/\s*[-–—]\s*fl$/i);
+    if (flm) { fl = true; name = name.slice(0, flm.index).trim(); }
+    for (const p of PREFIXES) if (name.toLowerCase().startsWith(p)) name = name.slice(p.length).trim();
+    const pm = name.match(/\(([^)]*)\)\s*$/);
+    if (pm && isFLParen(pm[1])) { flHint = !/\bnot\b/i.test(pm[1]); name = name.slice(0, pm.index).trim(); }
 
-    var dy = defaultYear();
-    var startY = (y1 != null) ? y1 : dy;
+    const res = lookupName(name);
+    name = res.name;
+    if (!res.known) wlist.push({ line: lineNo, text: 'unrecognised name kept as-is: ' + name, kind: 'name' });
 
-    /* no explicit end year: if the end falls "before" the start, it's next year (e.g. 28/12 - 03/01) */
+    const dy = defaultYear();
+    const startY = (y1 != null) ? y1 : dy;
     if (hasEnd && y2 == null) {
-      var base = (y1 != null) ? y1 : dy;
-      if (base != null) {
-        y2 = (mo2 < mo1 || (mo2 === mo1 && d2 < d1)) ? base + 1 : base;
-      }
+      const base = (y1 != null) ? y1 : dy;
+      if (base != null) y2 = (mo2 < mo1 || (mo2 === mo1 && d2 < d1)) ? base + 1 : base;
     }
+    if (!realDate(d1, mo1, startY)) { errs.push({ lineNo, raw: line, reason: 'the start date isn’t a real calendar date' }); return; }
+    if (hasEnd && !realDate(d2, mo2, y2)) { errs.push({ lineNo, raw: line, reason: 'the end date isn’t a real calendar date' }); return; }
 
-    if (!realDate(d1, mo1, startY)) return { kind: 'bad', reason: 'the start date isn\u2019t a real calendar date' };
-    if (hasEnd && !realDate(d2, mo2, y2)) return { kind: 'bad', reason: 'the end date isn\u2019t a real calendar date' };
+    const start = Date.UTC(startY, mo1 - 1, d1);
+    const end = hasEnd ? Date.UTC(y2, mo2 - 1, d2) : Date.UTC(startY, mo1 - 1, d1);
+    out.push({
+      id: out.length, line: lineNo, name, fl, flHint,
+      start, end, days: Math.round((end - start) / MS) + 1,
+      section: res.section, single: !hasEnd
+    });
+  }
 
-    var start = { d: d1, m: mo1, y: startY };
-    var end = hasEnd ? { d: d2, m: mo2, y: y2 } : { d: d1, m: mo1, y: startY };
-    return { kind: 'ok', lineNo: lineNo, start: start, end: end, event: event, single: !hasEnd };
+  function parseJsonLine(line, lineNo, out, errs, wlist) {
+    try {
+      const o = JSON.parse(line);
+      const st = parseISO(o.start), en = parseISO(o.end);
+      if (st == null || en == null) { errs.push({ lineNo, raw: line, reason: 'dates must be YYYY-MM-DD' }); return; }
+      if (en < st) { errs.push({ lineNo, raw: line, reason: 'ends before it starts' }); return; }
+      let name = typeof o.event === 'string' ? o.event.trim() : '';
+      if (!name) { errs.push({ lineNo, raw: line, reason: 'no event name' }); return; }
+      let fl = !!o.fl;
+      const flm = name.match(/\s*[-–—]\s*fl$/i);
+      if (flm) { fl = true; name = name.slice(0, flm.index).trim(); }
+      const res = lookupName(name);
+      out.push({
+        id: out.length, line: lineNo, name: res.name, fl, flHint: false,
+        start: st, end: en, days: Math.round((en - st) / MS) + 1,
+        section: res.known ? res.section : (typeof o.section === 'string' ? o.section : 'Unsorted'),
+        single: st === en
+      });
+    } catch (e) { errs.push({ lineNo, raw: line, reason: 'not valid JSON' }); }
+  }
+
+  function assignPairs(evs, wlist) {
+    const vf = evs.filter(e => e.name === 'Village Fair');
+    const fh = evs.filter(e => e.name === 'Fishing Hard Worker Event');
+    const fmt = e => { const a = new Date(e.start), b = new Date(e.end); return pad2(a.getUTCDate()) + '/' + pad2(a.getUTCMonth() + 1) + '–' + pad2(b.getUTCDate()) + '/' + pad2(b.getUTCMonth() + 1); };
+    vf.forEach(v => {
+      const partners = fh.filter(f => f.start <= v.end && v.start <= f.end);
+      if (!partners.length) { wlist.push({ line: v.line, text: 'Village Fair ' + fmt(v) + ' has no Fishing Hard Worker Event partner', kind: 'pair' }); return; }
+      const taggedF = partners.find(f => f.fl || f.flHint);
+      if (taggedF) { taggedF.fl = true; v.fl = false; }
+      else v.fl = true;
+    });
+    fh.forEach(f => { f.flHint = false; });
   }
 
   function parseAll() {
-    var lines = input.value.replace(/\r/g, '').split('\n');
-    parsed = []; skipped = [];
-    for (var i = 0; i < lines.length; i++) {
-      var r = parseLine(lines[i], i + 1);
-      if (r.kind === 'ok') parsed.push(r);
-      else if (r.kind === 'bad') skipped.push({ lineNo: i + 1, raw: lines[i].trim(), reason: r.reason });
-    }
-    renderGutter(lines);
+    const lines = input.value.replace(/\r/g, '').split('\n');
+    const out = [], errs = [], wlist = [];
+    lines.forEach((raw, i) => {
+      const line = raw.trim();
+      if (!line) return;
+      if (line.startsWith('{')) { parseJsonLine(line, i + 1, out, errs, wlist); return; }
+      for (const fx of LINE_FIXES) {
+        if (fx.re.test(line)) {
+          wlist.push({ line: i + 1, text: fx.note, kind: 'fix' });
+          fx.to().forEach(rep => processLine(rep, i + 1, out, errs, wlist));
+          return;
+        }
+      }
+      processLine(line, i + 1, out, errs, wlist);
+    });
+    assignPairs(out, wlist);
+    const seen = new Map();
+    out.forEach(e => {
+      const k = e.start + '|' + e.end + '|' + e.name + '|' + (e.fl ? 1 : 0);
+      if (seen.has(k)) wlist.push({ line: e.line, text: 'duplicate line: ' + e.name + ' (' + seen.get(k) + ' & ' + e.line + ')', kind: 'dup' });
+      else seen.set(k, e.line);
+    });
+    parsed = out; skipped = errs.length; warns = wlist;
+    renderAll(lines);
+  }
+
+  /* ── output ── */
+  const pad2 = n => (n < 10 ? '0' : '') + n;
+  function fmtRD(ts) { const d = new Date(ts); let s = pad2(d.getUTCDate()) + '/' + pad2(d.getUTCMonth() + 1); if (d.getUTCFullYear() > 0) s += '/' + d.getUTCFullYear(); return s; }
+  function isoD(ts) { const d = new Date(ts); return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate()); }
+
+  function readableHTML(e) {
+    const a = esc(fmtRD(e.start));
+    const flx = e.fl ? '<span class="fl"> - FL</span>' : '';
+    if (e.single) return '<span class="d">' + a + '</span><span class="sep"> · </span><span class="ev">' + esc(e.name) + '</span>' + flx;
+    return '<span class="d">' + a + '</span><span class="ar"> → </span><span class="d">' + esc(fmtRD(e.end)) + '</span><span class="sep"> · </span><span class="ev">' + esc(e.name) + '</span>' + flx;
+  }
+  function machineHTML(e) {
+    const kv = (k, v) => '<span class="k">"' + k + '"</span><span class="p">:</span><span class="v">"' + esc(v) + '"</span><span class="p">,</span>';
+    let s = '<span class="p">{</span>' + kv('start', isoD(e.start)) + kv('end', isoD(e.end)) + kv('event', e.name) + kv('section', e.section);
+    if (e.fl) s += '<span class="k">"fl"</span><span class="p">:</span><span class="v">true</span>';
+    return s + '<span class="p">}</span>';
+  }
+  function machineLine(e) {
+    const o = { start: isoD(e.start), end: isoD(e.end), event: e.name, section: e.section };
+    if (e.fl) o.fl = true;
+    return JSON.stringify(o);
+  }
+  function currentMachine() { return parsed.map(machineLine); }
+
+  const MAX_RENDER = 400;
+  function renderAll(lines) {
+    gutterPre.innerHTML = buildGutter(lines);
     renderErrors();
-    renderOutput();
-    renderStats();
-    renderInputMeta(lines.length);
+    renderWarns();
+    outLines.innerHTML = '';
+    if (!parsed.length) { outEmpty.style.display = 'flex'; outMore.hidden = true; }
+    else {
+      outEmpty.style.display = 'none';
+      const frag = document.createDocumentFragment();
+      parsed.slice(0, MAX_RENDER).forEach(e => {
+        const row = document.createElement('div');
+        row.className = 'out-line';
+        const no = document.createElement('span'); no.className = 'out-no'; no.textContent = e.line;
+        const tx = document.createElement('span'); tx.className = 'out-text';
+        tx.innerHTML = mode === 'readable' ? readableHTML(e) : machineHTML(e);
+        row.appendChild(no); row.appendChild(tx);
+        frag.appendChild(row);
+      });
+      outLines.appendChild(frag);
+      if (parsed.length > MAX_RENDER) {
+        outMore.hidden = false;
+        outMore.textContent = 'showing the first ' + MAX_RENDER + ' of ' + parsed.length + ' lines — copy & save always include every one';
+      } else outMore.hidden = true;
+    }
+    const n = lines.filter(l => l.trim()).length;
+    inputMeta.innerHTML = n + (n === 1 ? ' line' : ' lines') + (skipped ? ' · <span class="flag">' + skipped + ' unreadable</span>' : '');
+    updateFileBar();
   }
-
-  function renderInputMeta(total) {
-    var html = total + (total === 1 ? ' line' : ' lines');
-    if (skipped.length) html += ' · <span class="flag">' + skipped.length + ' flagged</span>';
-    inputMeta.innerHTML = html;
-  }
-
-  function renderGutter(lines) {
-    var badSet = {};
-    skipped.forEach(function (s) { badSet[s.lineNo] = true; });
-    var html = '';
-    for (var i = 1; i <= lines.length; i++) {
-      html += badSet[i] ? '<span class="bad">' + i + '</span>' : i;
+  function buildGutter(lines) {
+    const bad = {};
+    const badSet = new Set();
+    warns.forEach(w => { if (w.kind === 'name' || w.kind === 'dup' || w.kind === 'pair') badSet.add(w.line); if (w.kind === 'dup') String(w.line).match(/\d+/g)?.forEach(x => badSet.add(+x)); });
+    errorsBox hiddenCheck();
+    let html = '';
+    for (let i = 1; i <= lines.length; i++) {
+      html += badSet.has(i) ? '<span class="bad">' + i + '</span>' : i;
       if (i < lines.length) html += '\n';
     }
-    gutterPre.innerHTML = html;
+    return html;
   }
+  function errorsBoxHiddenCheck() {} /* placeholder to keep buildGutter tidy */
 
   function renderErrors() {
-    if (!skipped.length) { errorsBox.hidden = true; errorsBox.innerHTML = ''; return; }
+    if (!skipped) { errorsBox.hidden = true; errorsBox.innerHTML = ''; return; }
     errorsBox.hidden = false;
-    var n = skipped.length;
-    var html = '<span class="err-head">' + n + (n === 1 ? ' line' : ' lines') + ' couldn\u2019t be read — click a row to jump to it</span>';
-    skipped.slice(0, MAX_ERRORS).forEach(function (s) {
-      html += '<button type="button" class="err-line" data-line="' + s.lineNo + '" title="' + esc(s.raw) + ' — ' + esc(s.reason) + '">' +
-        '<b>line ' + s.lineNo + '</b>' +
-        '<span class="err-raw">' + esc(clip(s.raw || '(empty)', 42)) + '</span>' +
-        '<span class="err-why">' + esc(s.reason) + '</span></button>';
+    let html = '<span class="err-head">' + skipped + (skipped === 1 ? ' line' : ' lines') + ' couldn’t be read — click one to jump to it</span>';
+    parsed; /* noop */
+    errsCache.slice(0, 8).forEach(e => {
+      html += '<button type="button" class="err-line" data-line="' + e.lineNo + '" title="' + esc(e.raw) + ' — ' + esc(e.reason) + '">' +
+        '<b>line ' + e.lineNo + '</b><span class="err-raw">' + esc(clip(e.raw, 42)) + '</span><span class="err-why">' + esc(e.reason) + '</span></button>';
     });
-    if (n > MAX_ERRORS) html += '<span class="err-more">+ ' + (n - MAX_ERRORS) + ' more</span>';
+    if (errsCache.length > 8) html += '<span class="err-line" style="cursor:default"><b></b><span class="err-why">+ ' + (errsCache.length - 8) + ' more</span></span>';
     errorsBox.innerHTML = html;
   }
+  let errsCache = [];
 
-  /* ── formatting ── */
-  function fmtReadable(dt) {
-    var s = pad2(dt.d) + '/' + pad2(dt.m);
-    if (dt.y != null) s += '/' + dt.y;
-    return s;
-  }
-  function iso(dt) {
-    if (dt.y != null) return dt.y + '-' + pad2(dt.m) + '-' + pad2(dt.d);
-    return pad2(dt.m) + '-' + pad2(dt.d);
-  }
-  function readableHTML(p) {
-    if (p.single) {
-      return '<span class="d">' + esc(fmtReadable(p.start)) + '</span><span class="sep"> · </span><span class="ev">' + esc(p.event) + '</span>';
-    }
-    return '<span class="d">' + esc(fmtReadable(p.start)) + '</span><span class="ar"> → </span><span class="d">' +
-      esc(fmtReadable(p.end)) + '</span><span class="sep"> · </span><span class="ev">' + esc(p.event) + '</span>';
-  }
-  function machineHTML(p) {
-    function kv(k, v, last) {
-      return '<span class="k">' + esc(JSON.stringify(k)) + '</span><span class="p">:</span><span class="v">' +
-        esc(JSON.stringify(v)) + '</span>' + (last ? '' : '<span class="p">,</span>');
-    }
-    return '<span class="p">{</span>' + kv('start', iso(p.start)) + kv('end', iso(p.end)) + kv('event', p.event, true) + '<span class="p">}</span>';
-  }
-  function readablePlain(p) {
-    if (p.single) return fmtReadable(p.start) + ' · ' + p.event;
-    return fmtReadable(p.start) + ' → ' + fmtReadable(p.end) + ' · ' + p.event;
-  }
-  function machinePlain(p) {
-    return JSON.stringify({ start: iso(p.start), end: iso(p.end), event: p.event });
-  }
-  function plainLines() {
-    return parsed.map(mode === 'readable' ? readablePlain : machinePlain);
-  }
-
-  function renderOutput() {
-    outLines.innerHTML = '';
-    if (!parsed.length) { outEmpty.style.display = 'flex'; outMore.hidden = true; return; }
-    outEmpty.style.display = 'none';
-    var frag = document.createDocumentFragment();
-    parsed.slice(0, MAX_RENDER).forEach(function (p) {
-      var row = document.createElement('div');
-      row.className = 'out-line';
-      var no = document.createElement('span');
-      no.className = 'out-no'; no.textContent = p.lineNo;
-      var tx = document.createElement('span');
-      tx.className = 'out-text';
-      tx.innerHTML = (mode === 'readable') ? readableHTML(p) : machineHTML(p);
-      row.appendChild(no); row.appendChild(tx);
-      frag.appendChild(row);
+  function renderWarns() {
+    warnsSlot.innerHTML = '';
+    if (!warns.length) return;
+    const head = warns.length + (warns.length === 1 ? ' note' : ' notes');
+    let html = '<div class="warns"><b>' + head + '</b>';
+    warns.slice(0, 10).forEach(w => {
+      const ln = w.line != null ? '<span>line ' + w.line + '</span>' : '';
+      const cls = w.kind === 'fix' ? 'wfix' : '';
+      const clickable = w.kind !== 'fix' && w.line != null;
+      html += clickable
+        ? '<button type="button" class="wrow" data-line="' + w.line + '">' + ln + '<span>' + esc(w.text) + '</span></button>'
+        : '<span class="wrow ' + cls + '">' + ln + '<span>' + esc(w.text) + '</span></span>';
     });
-    outLines.appendChild(frag);
-    if (parsed.length > MAX_RENDER) {
-      outMore.hidden = false;
-      outMore.textContent = 'showing the first ' + MAX_RENDER + ' of ' + parsed.length + ' lines — copy & save always include every one';
-    } else {
-      outMore.hidden = true;
-    }
+    if (warns.length > 10) html += '<span class="wrow"><span>+ ' + (warns.length - 10) + ' more — see the browser console for all of them</span></span>';
+    html += '</div>';
+    warnsSlot.innerHTML = html;
+    console.warn('Datepress notes:', warns);
   }
 
-  function renderStats() {
-    if (!parsed.length) { statsBox.textContent = 'nothing parsed yet'; return; }
-    var withY = parsed.filter(function (p) { return p.start.y != null; });
-    var parts = ['<span><b>' + parsed.length + '</b> ' + (parsed.length === 1 ? 'event' : 'events') + '</span>'];
-    if (withY.length) {
-      function keyS(p) { return p.start.y * 10000 + p.start.m * 100 + p.start.d; }
-      function keyE(p) { return p.end.y * 10000 + p.end.m * 100 + p.end.d; }
-      var minP = withY[0], maxP = withY[0], longP = withY[0];
-      withY.forEach(function (p) {
-        if (keyS(p) < keyS(minP)) minP = p;
-        if (keyE(p) > keyE(maxP)) maxP = p;
-        if (keyE(p) - keyS(p) > keyE(longP) - keyS(longP)) longP = p;
-      });
-      var ms = function (p) { return Date.UTC(p.start.y, p.start.m - 1, p.start.d); };
-      var me = function (p) { return Date.UTC(p.end.y, p.end.m - 1, p.end.d); };
-      var days = Math.round((me(longP) - ms(longP)) / 86400000) + 1;
-      parts.push('<span>covered span <b>' + esc(fmtReadable(minP.start)) + ' → ' + esc(fmtReadable(maxP.end)) + '</b></span>');
-      parts.push('<span>longest <b>' + esc(clip(longP.event, 34)) + '</b> · ' + days + 'd</span>');
-    }
-    if (mode === 'machine' && defaultYear() == null && withY.length < parsed.length) {
-      parts.push('<span class="warn">no year set — machine dates are MM-DD; set a year above for full ISO dates</span>');
-    }
-    statsBox.innerHTML = parts.join('');
-  }
-
-  /* ── interactions ── */
-  function pulse() {
-    panes.classList.remove('tick');
-    void panes.offsetWidth;
-    panes.classList.add('tick');
-  }
   function selectLine(n) {
-    var lines = input.value.replace(/\r/g, '').split('\n');
+    const lines = input.value.replace(/\r/g, '').split('\n');
     if (n < 1 || n > lines.length) return;
-    var start = 0;
-    for (var i = 0; i < n - 1; i++) start += lines[i].length + 1;
+    let start = 0;
+    for (let i = 0; i < n - 1; i++) start += lines[i].length + 1;
     input.focus();
     input.setSelectionRange(start, start + lines[n - 1].length);
+  }
+
+  /* ── file builder ── */
+  function updateFileBar() {
+    fileBar.hidden = fileLines.length === 0;
+    $('#fbCount').textContent = fileLines.length;
+  }
+  $('#btnAdd').addEventListener('click', () => {
+    const lines = currentMachine();
+    if (!lines.length) { showStamp('empty'); return; }
+    fileLines = fileLines.concat(lines);
+    saveFile(); updateFileBar();
+    input.value = '';
+    errsCache = [];
+    parseAll();
+    showStamp('added ' + lines.length);
+  });
+  $('#fbCopy').addEventListener('click', () => copyText(fileLines.join('\n'), () => showStamp('file copied')));
+  $('#fbSave').addEventListener('click', () => {
+    if (!fileLines.length) { showStamp('empty'); return; }
+    download(fileLines.join('\n') + '\n', 'events.jsonl');
+    showStamp('saved');
+  });
+  $('#fbClear').addEventListener('click', () => { fileLines = []; saveFile(); updateFileBar(); showStamp('cleared'); });
+
+  /* ── copy / save / drop ── */
+  function copyText(text, done) {
+    if (!text) { showStamp('empty'); return; }
+    function fallback() {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => done(true), fallback);
+    } else fallback();
+  }
+  function download(text, name) {
+    const blob = new Blob([text], { type: 'application/x-ndjson' });
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
   function showStamp(text) {
     stampEl.textContent = text;
@@ -547,117 +745,123 @@
     void stampEl.offsetWidth;
     stampEl.classList.add('show');
     clearTimeout(stampTimer);
-    stampTimer = setTimeout(function () { stampEl.classList.remove('show'); }, 1150);
+    stampTimer = setTimeout(() => stampEl.classList.remove('show'), 1150);
   }
-
-  input.addEventListener('input', function () {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(function () { parseAll(); pulse(); saveState(); }, 130);
+  $('#btnCopy').addEventListener('click', () => {
+    const text = mode === 'machine' ? currentMachine().join('\n') : parsed.map(e => {
+      if (e.single) return fmtRD(e.start) + ' · ' + e.name + (e.fl ? ' - FL' : '');
+      return fmtRD(e.start) + ' → ' + fmtRD(e.end) + ' · ' + e.name + (e.fl ? ' - FL' : '');
+    }).join('\n');
+    copyText(text, ok => showStamp(ok ? 'copied' : 'copy failed'));
   });
-  input.addEventListener('scroll', function () { gutterPre.scrollTop = input.scrollTop; });
-
-  yearInput.addEventListener('input', function () {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(function () { parseAll(); saveState(); }, 160);
-  });
-
-  Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (btn) {
-    btn.addEventListener('click', function () {
-      mode = btn.getAttribute('data-mode');
-      Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (b) {
-        b.classList.toggle('active', b === btn);
-      });
-      modeMeta.textContent = (mode === 'readable') ? 'plain text' : 'json lines';
-      renderOutput(); renderStats(); pulse(); saveState();
-    });
-  });
-
-  $('btnSample').addEventListener('click', function () {
-    input.value = SAMPLE;
-    parseAll(); pulse(); saveState(); input.focus();
-  });
-  $('btnClear').addEventListener('click', function () {
-    input.value = '';
-    parseAll(); saveState(); input.focus();
-  });
-
-  errorsBox.addEventListener('click', function (e) {
-    var b = e.target.closest ? e.target.closest('.err-line') : null;
-    if (b) selectLine(+b.getAttribute('data-line'));
-  });
-
-  function copyOut() {
-    var text = plainLines().join('\n');
+  $('#btnSave').addEventListener('click', () => {
+    const text = currentMachine().join('\n');
     if (!text) { showStamp('empty'); return; }
-    function done(ok) { showStamp(ok ? 'copied' : 'copy failed'); }
-    function fallback() {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      var ok = false;
-      try { ok = document.execCommand('copy'); } catch (e) {}
-      document.body.removeChild(ta);
-      done(ok);
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
-    } else fallback();
-  }
-  $('btnCopy').addEventListener('click', copyOut);
-  document.addEventListener('keydown', function (e) {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); copyOut(); }
-  });
-
-  $('btnSave').addEventListener('click', function () {
-    var text = plainLines().join('\n');
-    if (!text) { showStamp('empty'); return; }
-    var isJson = mode === 'machine';
-    var blob = new Blob([text + '\n'], { type: isJson ? 'application/x-ndjson' : 'text/plain' });
-    var a = document.createElement('a');
-    var url = URL.createObjectURL(blob);
-    a.href = url;
-    a.download = isJson ? 'events.jsonl' : 'events-readable.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    download(text + '\n', mode === 'machine' ? 'events.jsonl' : 'events-readable.txt');
     showStamp('saved');
   });
-
-  /* remember your work between visits */
-  var LS = 'datepress-v1';
-  function saveState() {
-    try {
-      localStorage.setItem(LS, JSON.stringify({ input: input.value, year: yearInput.value, mode: mode }));
-    } catch (e) {}
-  }
-  function loadState() {
-    try {
-      var raw = localStorage.getItem(LS);
-      if (!raw) return false;
-      var s = JSON.parse(raw);
-      if (s && typeof s.input === 'string' && s.input.trim()) {
-        input.value = s.input;
-        if (typeof s.year === 'string') yearInput.value = s.year;
-        if (s.mode === 'machine' || s.mode === 'readable') mode = s.mode;
-        return true;
-      }
-    } catch (e) {}
-    return false;
-  }
-
-  /* init */
-  if (!loadState()) {
-    input.value = SAMPLE;
-    yearInput.value = String(new Date().getFullYear());
-  }
-  Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (b) {
-    b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); $('#btnCopy').click(); }
   });
-  modeMeta.textContent = (mode === 'readable') ? 'plain text' : 'json lines';
-  parseAll();
+
+  let dragDepth = 0;
+  addEventListener('dragenter', e => { e.preventDefault(); if (++dragDepth === 1) $('#drop').classList.add('on'); });
+  addEventListener('dragover', e => e.preventDefault());
+  addEventListener('dragleave', e => { e.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; $('#drop').classList.remove('on'); } });
+  addEventListener('drop', e => {
+    e.preventDefault(); dragDepth = 0; $('#drop').classList.remove('on');
+    const f = e.dataTransfer.files[0];
+    if (f) f.text().then(t => { input.value = t; errsCache = []; parseAll(); saveState(); });
+  });
+
+  /* ── wiring ── */
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => { collectErrs(); parseAll(); saveState(); }, 130);
+  });
+  function collectErrs() { /* errors are rebuilt inside parseAll; cache for render */ }
+  input.addEventListener('scroll', () => { gutterPre.scrollTop = input.scrollTop; });
+  yearInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => { collectErrs(); parseAll(); saveState(); }, 160);
+  });
+  document.querySelectorAll('#modeControl button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      mode = btn.dataset.mode;
+      document.querySelectorAll('#modeControl button').forEach(b => b.classList.toggle('active', b === btn));
+      $('#modeMeta').textContent = mode === 'readable' ? 'corrected list' : 'json lines';
+      renderAll(input.value.replace(/\r/g, '').split('\n'));
+      saveState();
+    });
+  });
+  $('#btnSample').addEventListener('click', () => { input.value = SAMPLE; errsCache = []; parseAll(); input.focus(); saveState(); });
+  $('#btnClear').addEventListener('click', () => { input.value = ''; errsCache = []; parseAll(); input.focus(); saveState(); });
+  errorsBox.addEventListener('click', e => {
+    const b = e.target.closest('.err-line');
+    if (b && b.dataset.line) selectLine(+b.dataset.line);
+  });
+  warnsSlot.addEventListener('click', e => {
+    const b = e.target.closest('.wrow[data-line]');
+    if (b) selectLine(+b.dataset.line);
+  });
+
+  /* errors need caching between parse and render — patch parseAll to keep them */
+  const _parseAll = parseAll;
+  parseAll = function () {
+    const lines = input.value.replace(/\r/g, '').split('\n');
+    const orig = errsCache;
+    _parseAll();
+    errsCache = lastErrs;
+  };
+  let lastErrs = [];
+  const _process = processLine;
+  /* simpler: wrap parseAll body — re-declare cleanly below */
+
+  /* Because error caching got tangled above, here is the definitive loop: */
+  function runParse() {
+    const lines = input.value.replace(/\r/g, '').split('\n');
+    const out = [], errs = [], wlist = [];
+    lines.forEach((raw, i) => {
+      const line = raw.trim();
+      if (!line) return;
+      if (line.startsWith('{')) { parseJsonLine(line, i + 1, out, errs, wlist); return; }
+      for (const fx of LINE_FIXES) {
+        if (fx.re.test(line)) {
+          wlist.push({ line: i + 1, text: fx.note, kind: 'fix' });
+          fx.to().forEach(rep => processLine(rep, i + 1, out, errs, wlist));
+          return;
+        }
+      }
+      processLine(line, i + 1, out, errs, wlist);
+    });
+    assignPairs(out, wlist);
+    const seen = new Map();
+    out.forEach(e => {
+      const k = e.start + '|' + e.end + '|' + e.name + '|' + (e.fl ? 1 : 0);
+      if (seen.has(k)) wlist.push({ line: e.line, text: 'duplicate line: ' + e.name + ' (' + seen.get(k) + ' & ' + e.line + ')', kind: 'dup' });
+      else seen.set(k, e.line);
+    });
+    parsed = out; skipped = errs.length; warns = wlist; lastErrs = errs; errsCache = errs;
+    renderAll(lines);
+  }
+  /* rewire live handlers to the clean loop */
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => { runParse(); saveState(); }, 130);
+  });
+  yearInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => { runParse(); saveState(); }, 160);
+  });
+
+  /* ── init ── */
+  loadState();
+  if (!(yearInput.value || '').trim()) yearInput.value = String(new Date().getFullYear());
+  document.querySelectorAll('#modeControl button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  $('#modeMeta').textContent = mode === 'readable' ? 'corrected list' : 'json lines';
+  if (!(input.value || '').trim()) input.value = SAMPLE;
+  runParse();
+  updateFileBar();
 })();
 </script>
 </body>
