@@ -16,21 +16,14 @@
     --mono: 'IBM Plex Mono', monospace; --serif: 'Fraunces', Georgia, serif;
   }
   html { background: var(--paper); }
-  body {
-    background: var(--paper); color: var(--ink); font-family: var(--serif);
-    -webkit-font-smoothing: antialiased; overflow-x: hidden;
-  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--serif); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   body::after {
     content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .05; z-index: 40;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="180" height="180" filter="url(%23n)"/></svg>');
   }
   ::selection { background: var(--green); color: #F6F4EB; }
   .page { max-width: 1120px; margin: 0 auto; padding: 0 26px; }
-  .topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0 11px; border-bottom: 1px solid var(--line);
-    font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-  }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 14px 0 11px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
   .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; }
   .brand .mark { width: 8px; height: 8px; background: var(--green); }
   .topbar-note { color: var(--muted); }
@@ -53,20 +46,11 @@
   .controls { margin-top: 40px; padding: 18px 0; border-top: 2px solid var(--ink); display: flex; align-items: flex-end; gap: 42px; flex-wrap: wrap; }
   .field { display: flex; flex-direction: column; gap: 9px; }
   .field-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
-  #yearInput {
-    font-family: var(--mono); font-size: 15px; color: var(--ink); background: transparent;
-    border: 1px solid rgba(34,37,30,.36); padding: 8px 10px; width: 9ch; border-radius: 0;
-    -moz-appearance: textfield; appearance: textfield;
-  }
+  #yearInput { font-family: var(--mono); font-size: 15px; color: var(--ink); background: transparent; border: 1px solid rgba(34,37,30,.36); padding: 8px 10px; width: 9ch; border-radius: 0; -moz-appearance: textfield; appearance: textfield; }
   #yearInput::-webkit-outer-spin-button, #yearInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   #yearInput:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
   .seg-control { display: flex; border: 1px solid rgba(34,37,30,.36); }
-  .seg-control button {
-    cursor: pointer; background: transparent; border: 0; padding: 6px 16px 7px;
-    display: flex; flex-direction: column; gap: 1px; align-items: flex-start;
-    border-right: 1px solid rgba(34,37,30,.36); color: var(--muted); font-family: var(--mono);
-    transition: background .15s, color .15s;
-  }
+  .seg-control button { cursor: pointer; background: transparent; border: 0; padding: 6px 16px 7px; display: flex; flex-direction: column; gap: 1px; align-items: flex-start; border-right: 1px solid rgba(34,37,30,.36); color: var(--muted); font-family: var(--mono); transition: background .15s, color .15s; }
   .seg-control button:last-child { border-right: 0; }
   .seg-control button b { font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
   .seg-control button small { font-size: 10px; letter-spacing: .05em; color: var(--muted); }
@@ -81,13 +65,9 @@
   .pane-meta { font-size: 11px; color: var(--muted); letter-spacing: .06em; }
   .pane-meta .flag { color: var(--warn); font-weight: 600; }
   .pane-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .linklike { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; color: var(--muted); padding: 2px 1px; }
+  .linklike { font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; background: none; border: 0; border-bottom: 1px solid transparent; cursor: pointer; color: var(--muted); padding: 2px 1px; }
   .linklike:hover { color: var(--green); border-bottom-color: var(--green); }
-  .btn {
-    display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10.5px;
-    font-weight: 600; letter-spacing: .14em; text-transform: uppercase; padding: 6px 13px; cursor: pointer;
-    border: 1px solid var(--ink); background: var(--ink); color: #FBF8F1; transition: background .15s, border-color .15s;
-  }
+  .btn { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; padding: 6px 13px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: #FBF8F1; transition: background .15s, border-color .15s; }
   .btn:hover { background: var(--green); border-color: var(--green); }
   .btn.ghost { background: transparent; color: var(--ink); border-color: rgba(34,37,30,.36); }
   .btn.ghost:hover { color: var(--green); border-color: var(--green); background: transparent; }
@@ -96,11 +76,7 @@
   .gutter { position: relative; flex: none; width: 54px; overflow: hidden; border-right: 1px solid var(--line); background: var(--paper); }
   #gutterPre { position: absolute; inset: 0; overflow: hidden; margin: 0; font-family: var(--mono); font-size: 13px; line-height: 1.7; text-align: right; white-space: pre; color: rgba(34,37,30,.36); padding: 12px 12px 0 4px; }
   #gutterPre .bad { color: var(--warn); font-weight: 600; }
-  #input {
-    flex: 1; border: 0; background: transparent; resize: none; outline: none;
-    font-family: var(--mono); font-size: 13px; line-height: 1.7; padding: 12px 14px;
-    color: var(--ink); caret-color: var(--green); white-space: pre;
-  }
+  #input { flex: 1; border: 0; background: transparent; resize: none; outline: none; font-family: var(--mono); font-size: 13px; line-height: 1.7; padding: 12px 14px; color: var(--ink); caret-color: var(--green); white-space: pre; }
   #input::placeholder { color: rgba(34,37,30,.36); }
   .errors { border-top: 1px solid var(--line); background: var(--accent-soft); padding: 10px 14px 12px; font-family: var(--mono); }
   .err-head { display: block; font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--warn); margin-bottom: 7px; }
@@ -123,25 +99,15 @@
   .out-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-family: var(--serif); font-style: italic; color: rgba(34,37,30,.36); font-size: 1.05rem; pointer-events: none; }
   .warns { border-bottom: 1px dashed var(--line); padding: 8px 14px 10px; font-family: var(--mono); font-size: 11px; color: var(--warn); line-height: 1.8; }
   .warns b { font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 10px; display: block; margin-bottom: 2px; }
-  .warns .wrow { display: flex; gap: 10px; background: none; border: 0; padding: 1px 0; cursor: pointer; color: inherit; text-align: left; font-family: var(--mono); font-size: 11px; }
-  .warns .wrow:hover { color: var(--ink); }
+  .warns .wrow { display: flex; gap: 10px; background: none; border: 0; padding: 1px 0; color: inherit; text-align: left; font-family: var(--mono); font-size: 11px; }
+  .warns button.wrow { cursor: pointer; }
+  .warns button.wrow:hover { color: var(--ink); }
   .warns .wfix { color: var(--muted); }
   .filebar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 14px; border-top: 1px solid var(--line); background: var(--accent-soft); font-family: var(--mono); font-size: 11px; color: var(--muted); }
   .filebar b { color: var(--ink); font-weight: 600; }
-  .stamp {
-    position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-7deg);
-    font-family: var(--mono); font-weight: 600; font-size: 21px; letter-spacing: .26em; text-transform: uppercase;
-    color: var(--green); border: 3px solid var(--green); border-radius: 3px; padding: 9px 16px 9px 21px;
-    background: rgba(251,248,241,.88); opacity: 0; pointer-events: none; z-index: 5;
-  }
+  .stamp { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-7deg); font-family: var(--mono); font-weight: 600; font-size: 21px; letter-spacing: .26em; text-transform: uppercase; color: var(--green); border: 3px solid var(--green); border-radius: 3px; padding: 9px 16px 9px 21px; background: rgba(251,248,241,.88); opacity: 0; pointer-events: none; z-index: 5; }
   .stamp.show { animation: stampIn 1.1s ease forwards; }
-  @keyframes stampIn {
-    0% { opacity: 0; transform: translate(-50%,-50%) rotate(-7deg) scale(1.65); }
-    12% { opacity: 1; transform: translate(-50%,-50%) rotate(-7deg) scale(.96); }
-    22% { transform: translate(-50%,-50%) rotate(-7deg) scale(1); }
-    72% { opacity: 1; }
-    100% { opacity: 0; }
-  }
+  @keyframes stampIn { 0% { opacity: 0; transform: translate(-50%,-50%) rotate(-7deg) scale(1.65); } 12% { opacity: 1; transform: translate(-50%,-50%) rotate(-7deg) scale(.96); } 22% { transform: translate(-50%,-50%) rotate(-7deg) scale(1); } 72% { opacity: 1; } 100% { opacity: 0; } }
   .foot { margin-top: 54px; border-top: 1px solid var(--line); padding: 18px 0 52px; display: flex; justify-content: space-between; gap: 12px 48px; flex-wrap: wrap; font-family: var(--mono); font-size: 11.5px; line-height: 1.8; color: var(--muted); }
   .foot b { color: var(--ink); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
   .drop { position: fixed; inset: 14px; z-index: 100; display: none; align-items: center; justify-content: center; border: 2px dashed var(--green); border-radius: 18px; background: var(--accent-soft); }
@@ -168,7 +134,7 @@
     </div>
     <div class="hero">
       <h1>Datepress<span class="dot">.</span></h1>
-      <p class="lede">Paste a year of raw event lines on the left — get back clean, canonical names, Farmer's League tags, and sections, ready for the Bigfarm Calendar.</p>
+      <p class="lede">Paste a year of raw event lines on the left — get back clean, canonical names, Farmer's League tags and sections, ready for the Bigfarm Calendar.</p>
       <div class="specimen">
         <div class="spec-label">anatomy of a line</div>
         <div class="spec-row">
@@ -254,14 +220,13 @@
     <b>Drop your events file</b><span>raw list · or machine .jsonl to re-normalise</span>
   </div>
 </div>
-<input type="file" id="fileInput" accept=".jsonl,.json,.txt" hidden>
 
 <script>
 (function () {
   'use strict';
 
-  /* ══════════════ THE MAP — sections, order & caps (mirrors the calendar) ══════════════ */
-  const SECTIONS = [
+  /* ══════════════ THE MAP — sections & order (mirrors the calendar) ══════════════ */
+  var SECTIONS = [
     { name: 'Weekly events', events: ['Village Fair', 'Fishing Hard Worker Event', 'Hard Worker Event', 'Cooperative Hard Worker Event', 'Cooperative Championship'] },
     { name: 'Monthly events', events: ['Cruise Ship', 'Goldfish Rescue', 'Pleasure Park', 'Urgent Delivery', 'Urgent Delivery (Gourmet Farm)', 'Shinkei-Suijaku', 'Pair Finder'] },
     { name: 'Dream worlds', events: ["Greta's Dream World", "Tessa's Dream World", "Tessa's Dream World (Missions)"] },
@@ -273,12 +238,10 @@
     { name: 'Themed events', events: ['A Hint of Hawaii', "Here's to Nature", 'Not of this World', 'Mysterious Asia', 'Fairytale Time', 'Culinary Campaign', 'Three Weddings and a Rigmarole'] },
     { name: 'Minor events', events: ['A Hero for Piggles', 'My bees are gone!', 'Fortune Teller', 'Landscape Architect'] }
   ];
-  const WEEKLY = ['Village Fair', 'Fishing Hard Worker Event', 'Hard Worker Event', 'Cooperative Hard Worker Event', 'Cooperative Championship'];
 
-  /* every old spelling → canonical (keys lower-case, single-spaced). Parenthetical FL
-     annotations are stripped before this lookup, so they need no entries here. */
-  const NAME_MAP = {
-    /* weekly family */
+  /* every old spelling → canonical (keys are lower-case, single-spaced).
+     Parenthetical FL annotations are stripped before lookup, so they need no entries. */
+  var NAME_MAP = {
     'fishing hwe': 'Fishing Hard Worker Event',
     "fishing hardworker's": 'Fishing Hard Worker Event',
     "fishing hardworker's event": 'Fishing Hard Worker Event',
@@ -300,7 +263,6 @@
     'hardworker event': 'Hard Worker Event',
     'coop championship': 'Cooperative Championship',
     'cooperative tournament': 'Cooperative Championship',
-    /* dream worlds */
     "greta's dreamworld": "Greta's Dream World",
     "tessa's dreamworld": "Tessa's Dream World",
     "tessa's dream world withoutmissions": "Tessa's Dream World",
@@ -308,34 +270,23 @@
     "tessa's dream world missions": "Tessa's Dream World (Missions)",
     "tessa's dream world with mission": "Tessa's Dream World (Missions)",
     "tessa's dreamworld with missions": "Tessa's Dream World (Missions)",
-    /* leagues */
     "farmers' league": "Farmer's League",
     'farmers league': "Farmer's League",
     'world wide championship': 'Worldwide Championship',
-    'worldwide championship': 'Worldwide Championship',
-    /* small stuff */
     'fortune teller': 'Fortune Teller',
     'fortuner teller': 'Fortune Teller',
     'shinkei suijaku': 'Shinkei-Suijaku',
     'landcape architect': 'Landscape Architect',
-    'goldfish rescue': 'Goldfish Rescue',
-    'culinary campaign': 'Culinary Campaign',
-    'advent calendar': 'Advent Calendar',
-    'mysterious asia': 'Mysterious Asia',
-    'not of this world': 'Not of this World',
-    "here's to nature!": "Here's to Nature",
-    'fairytale time': 'Fairytale Time',
-    'fairytale': 'Fairytale Time',
-    'big farm anniversary event': 'Big Farm Anniversary Event',
-    'a hint of hawaii': 'A Hint of Hawaii',
-    'urgent delivery': 'Urgent Delivery',
-    'urgent delivery gourmet farm': 'Urgent Delivery (Gourmet Farm)',
-    /* renames & folds */
     'save the bees!': 'My bees are gone!',
     'save the bees': 'My bees are gone!',
     'save piggles': 'A Hero for Piggles',
+    "here's to nature!": "Here's to Nature",
+    'aloha from hawaii': 'A Hint of Hawaii',
+    'hint of hawaii': 'A Hint of Hawaii',
+    "st. patrick's event": "Saint Patrick's Day",
+    'fairy tale time': 'Fairytale Time',
+    'fairytale': 'Fairytale Time',
     'wedding planner': 'Three Weddings and a Rigmarole',
-    'three weddings and a rigmarole': 'Three Weddings and a Rigmarole',
     'easter search event': 'Easter Egg Hunt',
     'halloween search': 'Halloween Search Event',
     'mushroom search': 'Mushroom Search Event',
@@ -344,82 +295,90 @@
     'summer search event': 'Summer Time Search Event',
     'summer time': 'Summer Time Search Event',
     'golden week': 'Golden Week Event',
-    "st. patrick's event": "Saint Patrick's Day",
-    'aloha from hawaii': 'A Hint of Hawaii',
-    'hint of hawaii': 'A Hint of Hawaii',
+    'urgent delivery gourmet farm': 'Urgent Delivery (Gourmet Farm)',
     'xmas viking farm': 'Viking Farm',
     'christmas viking farm': 'Viking Farm',
     'christmas northern lights farm': 'Northern Lights Farm',
     'island farm': 'Tropical Farm',
     'food truck': 'Culinary Campaign',
     'big farm 11th anniversary': 'Big Farm Anniversary Event: 11th',
-    /* horse season */
     'new horse season': 'Horse Season',
     'horse season movie heroes': 'Horse Season: Movie Heroes',
     'new horse season - yeti': 'Horse Season: Yeti',
     'new horse season - best of 2017': 'Horse Season: Best of 2017'
   };
 
-  const CANON = new Map();
-  SECTIONS.forEach(s => s.events.forEach(n => CANON.set(n.toLowerCase(), { name: n, section: s.name })));
+  var CANON = new Map();
+  SECTIONS.forEach(function (s) {
+    s.events.forEach(function (n) { CANON.set(n.toLowerCase(), { name: n, section: s.name }); });
+  });
 
   /* full-line fixes agreed along the way */
-  const LINE_FIXES = [
-    { re: /new\s+farmer'?s\s+league\s+starts/i, to: () => ["29/08 - 11/10 Farmer's League"], note: "note line became 29/08 – 11/10 Farmer's League" },
-    { re: /pl server only/i, to: () => [], note: 'PL-server Cruise Ship test line removed' },
-    { re: /^02\/04\s*-\s*09\/04\s+global point event$/i, to: () => [], note: 'stray 02/04 – 09/04 Global Point Event removed' },
-    { re: /^22\/08\s*-\s*26\/08\s+cruise ship$/i, to: () => ['22/08 - 26/08 Cruise Ship - FL'], note: 'latest Cruise Ship run tagged - FL' }
+  var LINE_FIXES = [
+    { re: /new\s+farmer'?s\s+league\s+starts/i, to: function () { return ["29/08 - 11/10 Farmer's League"]; }, note: "note line became 29/08 – 11/10 Farmer's League" },
+    { re: /pl\s+server\s+only/i, to: function () { return []; }, note: 'PL-server Cruise Ship test line removed' },
+    { re: /^02\/04\s*-\s*09\/04\s+global point event$/i, to: function () { return []; }, note: 'stray 02/04 – 09/04 Global Point Event removed' },
+    { re: /^22\/08\s*-\s*26\/08\s+cruise ship$/i, to: function () { return ['22/08 - 26/08 Cruise Ship - FL']; }, note: 'latest Cruise Ship run tagged - FL' }
   ];
-  const PREFIXES = ['theme event:', 'themed event:'];
+  var PREFIXES = ['theme event:', 'themed event:'];
+  var LINE_RE = /^(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?(?:\s*(?:[-–—]|to)\s*(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?)?\s+(.+)$/i;
+  var MS = 86400000;
 
-  const M_L = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const M_S = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const MS = 86400000;
-  const $ = s => document.querySelector(s);
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const clip = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
-  const clone = o => JSON.parse(JSON.stringify(o));
-
-  const LINE_RE = /^(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?(?:\s*(?:[-–—]|to)\s*(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*\/\s*(\d{2,4}))?)?\s+(.+)$/i;
-
-  const SAMPLE = [
+  var SAMPLE = [
     '02/09 - 05/09 Village Fair - FL',
     '02/09 - 05/09 Fishing Hard Worker Event',
     '05/09 - 09/09 Cooperative Championship',
-    '09/09 - 12/09 Cooperative Hard Worker Event',
-    '03/09 - 10/09 Greta\'s Dream World',
+    '09/09 - 12/09 Coop HWE',
+    "03/09 - 10/09 Greta's Dreamworld",
     '14/09 - 16/09 Landscape Architect',
-    '19/08 - 22/08 Village Fair (Farmer\'s League)',
+    "19/08 - 22/08 Village Fair (Farmer's League)",
     '19/08 - 22/08 Fishing HWE',
-    '26/08 - 07/10 Farmer\'s League',
+    "26/08 - 07/10 Farmer's League",
     '22/08 - 26/08 Cruise Ship - FL',
     '31/08 - 27/09 Candy Farm',
-    '12/09 - 19/09 Tessa\'s Dream World with Missions',
+    "12/09 - 19/09 Tessa's Dream World with Missions",
     '10/11 - 17/11 Food Truck',
+    "29/08 - new Farmer's League starts",
     'Sept 17-19: Tile Workshop'
   ].join('\n');
 
-  /* ── state ── */
-  let mode = 'readable';
-  let parsed = [], skipped = 0, warns = [];
-  let fileLines = [];
-  let debounceTimer = null, stampTimer = null;
+  /* ── dom & state ── */
+  var input = document.getElementById('input'),
+      gutterPre = document.getElementById('gutterPre'),
+      outLines = document.getElementById('outLines'),
+      outEmpty = document.getElementById('outEmpty'),
+      outMore = document.getElementById('outMore'),
+      inputMeta = document.getElementById('inputMeta'),
+      errorsBox = document.getElementById('errors'),
+      warnsSlot = document.getElementById('warnsSlot'),
+      stampEl = document.getElementById('stamp'),
+      yearInput = document.getElementById('yearInput'),
+      fileBar = document.getElementById('fileBar');
 
-  const input = $('#input'), gutterPre = $('#gutterPre'), outLines = $('#outLines'),
-        outEmpty = $('#outEmpty'), outMore = $('#outMore'), inputMeta = $('#inputMeta'),
-        errorsBox = $('#errors'), warnsSlot = $('#warnsSlot'), stampEl = $('#stamp'),
-        yearInput = $('#yearInput'), fileBar = $('#fileBar');
+  var mode = 'readable';
+  var parsed = [], errsCache = [], warns = [];
+  var fileLines = [];
+  var debounceTimer = null, stampTimer = null;
+  var MAX_RENDER = 400;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function clip(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
   function saveState() {
-    try { localStorage.setItem('datepress2', JSON.stringify({ input: input.value, year: yearInput.value, mode })); } catch (e) {}
+    try { localStorage.setItem('datepress2', JSON.stringify({ input: input.value, year: yearInput.value, mode: mode })); } catch (e) {}
   }
   function loadState() {
     try {
-      const s = JSON.parse(localStorage.getItem('datepress2') || '{}');
+      var s = JSON.parse(localStorage.getItem('datepress2') || '{}');
       if (typeof s.input === 'string' && s.input.trim()) input.value = s.input;
       if (typeof s.year === 'string') yearInput.value = s.year;
       if (s.mode === 'readable' || s.mode === 'machine') mode = s.mode;
-      const f = JSON.parse(localStorage.getItem('datepress2-file') || '[]');
+      var f = JSON.parse(localStorage.getItem('datepress2-file') || '[]');
       if (Array.isArray(f)) fileLines = f;
     } catch (e) {}
   }
@@ -429,436 +388,417 @@
 
   /* ── name machinery ── */
   function isFLParen(s) {
-    const t = s.toLowerCase();
-    if (t.includes('gourmet') || t.includes('mission') || t.includes('server')) return false;
-    const hasFl = /\bfl\b/.test(t) || t.includes('farmer') || t.includes('farmers');
-    return hasFl && (t.includes('league') || /\bfl\b/.test(t));
+    var t = s.toLowerCase();
+    if (t.indexOf('gourmet') >= 0 || t.indexOf('mission') >= 0 || t.indexOf('server') >= 0) return false;
+    var hasFl = /\bfl\b/.test(t) || t.indexOf('farmer') >= 0 || t.indexOf('farmers') >= 0;
+    return hasFl && (t.indexOf('league') >= 0 || /\bfl\b/.test(t));
   }
   function lookupName(name) {
-    const key = name.toLowerCase().replace(/\s+/g, ' ').trim();
+    var key = name.toLowerCase().replace(/\s+/g, ' ').trim();
     if (NAME_MAP[key]) {
-      const c = CANON.get(NAME_MAP[key].toLowerCase());
+      var c = CANON.get(NAME_MAP[key].toLowerCase());
       return { name: NAME_MAP[key], known: true, section: c ? c.section : 'Unsorted' };
     }
     if (CANON.has(key)) return { name: CANON.get(key).name, known: true, section: CANON.get(key).section };
-    const hs = key.match(/^horse season:\s*(.+)$/);
-    if (hs) return { name: 'Horse Season: ' + name.replace(/^horse season:\s*/i, ''), known: true, section: 'Background events' };
-    const bfa = key.match(/^big farm anniversary event:\s*(.+)$/);
-    if (bfa) return { name: 'Big Farm Anniversary Event: ' + name.replace(/^big farm anniversary event:\s*/i, ''), known: true, section: 'Yearly events' };
+    var hs = name.match(/^horse season:\s*(.*)$/i);
+    if (hs) return { name: 'Horse Season: ' + hs[1].trim(), known: true, section: 'Background events' };
+    var bfa = name.match(/^big farm anniversary event:\s*(.*)$/i);
+    if (bfa) return { name: 'Big Farm Anniversary Event: ' + bfa[1].trim(), known: true, section: 'Yearly events' };
     return { name: name, known: false, section: 'Unsorted' };
   }
 
-  /* ── date helpers (unchanged from v1) ── */
+  /* ── dates ── */
   function defaultYear() {
-    const v = (yearInput.value || '').trim();
+    var v = (yearInput.value || '').trim();
     if (!v) return null;
-    const n = parseInt(v, 10);
+    var n = parseInt(v, 10);
     if (!isFinite(n) || n < 0) return null;
     return n < 100 ? 2000 + n : n;
   }
-  const normYear = n => n < 100 ? 2000 + n : n;
+  function normYear(n) { return n < 100 ? 2000 + n : n; }
   function realDate(d, m, y) {
     if (m < 1 || m > 12) return false;
-    const yy = (y == null) ? 2001 : y;
-    const dt = new Date(yy, m - 1, d);
+    var yy = (y == null) ? 2001 : y;
+    var dt = new Date(yy, m - 1, d);
     return dt.getMonth() === m - 1 && dt.getDate() === d;
   }
   function parseISO(v) {
     if (typeof v !== 'string') return null;
-    const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    var m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
     if (!m) return null;
-    const y = +m[1], mo = +m[2], d = +m[3];
-    const dt = new Date(Date.UTC(y, mo - 1, d));
+    var y = +m[1], mo = +m[2], d = +m[3];
+    var dt = new Date(Date.UTC(y, mo - 1, d));
     if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
     return Date.UTC(y, mo - 1, d);
   }
+  function fmtRD(ts) { var d = new Date(ts); return pad2(d.getUTCDate()) + '/' + pad2(d.getUTCMonth() + 1) + '/' + d.getUTCFullYear(); }
+  function isoD(ts) { var d = new Date(ts); return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate()); }
 
-  /* ── the pipeline ── */
+  /* ── pipeline ── */
   function processLine(line, lineNo, out, errs, wlist) {
-    const m = LINE_RE.exec(line);
+    var m = LINE_RE.exec(line);
     if (!m) {
-      if (/^\d{1,2}\s*\//.test(line)) errs.push({ lineNo, raw: line, reason: 'dates found, but no event name after them' });
-      else errs.push({ lineNo, raw: line, reason: 'line doesn’t start with a date like 14/09' });
+      if (/^\d{1,2}\s*\//.test(line)) errs.push({ lineNo: lineNo, raw: line, reason: 'dates found, but no event name after them' });
+      else errs.push({ lineNo: lineNo, raw: line, reason: 'line doesn’t start with a date like 14/09' });
       return;
     }
-    const d1 = +m[1], mo1 = +m[2];
-    const y1 = (m[3] != null) ? normYear(+m[3]) : null;
-    const hasEnd = m[4] != null;
-    let d2 = 0, mo2 = 0, y2 = null;
+    var d1 = +m[1], mo1 = +m[2];
+    var y1 = (m[3] != null) ? normYear(+m[3]) : null;
+    var hasEnd = m[4] != null;
+    var d2 = 0, mo2 = 0, y2 = null;
     if (hasEnd) {
       d2 = +m[4]; mo2 = +m[5];
       if (m[6] != null) y2 = normYear(+m[6]);
     }
-    let name = (m[7] || '').replace(/^[\s:·|,\-–—]+/, '').replace(/\s+/g, ' ').trim();
-    if (!name) { errs.push({ lineNo, raw: line, reason: 'no event name found' }); return; }
+    var name = (m[7] || '').replace(/^[\s:·|,\-–—]+/, '').replace(/\s+/g, ' ').trim();
+    if (!name) { errs.push({ lineNo: lineNo, raw: line, reason: 'no event name found' }); return; }
 
-    let fl = false, flHint = false;
-    const flm = name.match(/\s*[-–—]\s*fl$/i);
+    var fl = false, flHint = false;
+    var flm = name.match(/\s*[-–—]\s*fl$/i);
     if (flm) { fl = true; name = name.slice(0, flm.index).trim(); }
-    for (const p of PREFIXES) if (name.toLowerCase().startsWith(p)) name = name.slice(p.length).trim();
-    const pm = name.match(/\(([^)]*)\)\s*$/);
+    for (var i = 0; i < PREFIXES.length; i++) {
+      if (name.toLowerCase().indexOf(PREFIXES[i]) === 0) name = name.slice(PREFIXES[i].length).trim();
+    }
+    var pm = name.match(/\(([^)]*)\)\s*$/);
     if (pm && isFLParen(pm[1])) { flHint = !/\bnot\b/i.test(pm[1]); name = name.slice(0, pm.index).trim(); }
 
-    const res = lookupName(name);
+    var res = lookupName(name);
     name = res.name;
-    if (!res.known) wlist.push({ line: lineNo, text: 'unrecognised name kept as-is: ' + name, kind: 'name' });
+    if (!res.known) wlist.push({ line: lineNo, text: 'unrecognised name kept as-is — ' + name, kind: 'name' });
 
-    const dy = defaultYear();
-    const startY = (y1 != null) ? y1 : dy;
+    var dy = defaultYear();
+    var startY = (y1 != null) ? y1 : dy;
+    if (startY == null) { errs.push({ lineNo: lineNo, raw: line, reason: 'no year — set the Year field above' }); return; }
     if (hasEnd && y2 == null) {
-      const base = (y1 != null) ? y1 : dy;
+      var base = (y1 != null) ? y1 : dy;
       if (base != null) y2 = (mo2 < mo1 || (mo2 === mo1 && d2 < d1)) ? base + 1 : base;
     }
-    if (!realDate(d1, mo1, startY)) { errs.push({ lineNo, raw: line, reason: 'the start date isn’t a real calendar date' }); return; }
-    if (hasEnd && !realDate(d2, mo2, y2)) { errs.push({ lineNo, raw: line, reason: 'the end date isn’t a real calendar date' }); return; }
+    if (!realDate(d1, mo1, startY)) { errs.push({ lineNo: lineNo, raw: line, reason: 'the start date isn’t a real calendar date' }); return; }
+    if (hasEnd && !realDate(d2, mo2, y2)) { errs.push({ lineNo: lineNo, raw: line, reason: 'the end date isn’t a real calendar date' }); return; }
 
-    const start = Date.UTC(startY, mo1 - 1, d1);
-    const end = hasEnd ? Date.UTC(y2, mo2 - 1, d2) : Date.UTC(startY, mo1 - 1, d1);
+    var start = Date.UTC(startY, mo1 - 1, d1);
+    var end = hasEnd ? Date.UTC(y2, mo2 - 1, d2) : Date.UTC(startY, mo1 - 1, d1);
     out.push({
-      id: out.length, line: lineNo, name, fl, flHint,
-      start, end, days: Math.round((end - start) / MS) + 1,
+      id: out.length, line: lineNo, name: name, fl: fl, flHint: flHint,
+      start: start, end: end, days: Math.round((end - start) / MS) + 1,
       section: res.section, single: !hasEnd
     });
   }
 
   function parseJsonLine(line, lineNo, out, errs, wlist) {
-    try {
-      const o = JSON.parse(line);
-      const st = parseISO(o.start), en = parseISO(o.end);
-      if (st == null || en == null) { errs.push({ lineNo, raw: line, reason: 'dates must be YYYY-MM-DD' }); return; }
-      if (en < st) { errs.push({ lineNo, raw: line, reason: 'ends before it starts' }); return; }
-      let name = typeof o.event === 'string' ? o.event.trim() : '';
-      if (!name) { errs.push({ lineNo, raw: line, reason: 'no event name' }); return; }
-      let fl = !!o.fl;
-      const flm = name.match(/\s*[-–—]\s*fl$/i);
-      if (flm) { fl = true; name = name.slice(0, flm.index).trim(); }
-      const res = lookupName(name);
-      out.push({
-        id: out.length, line: lineNo, name: res.name, fl, flHint: false,
-        start: st, end: en, days: Math.round((en - st) / MS) + 1,
-        section: res.known ? res.section : (typeof o.section === 'string' ? o.section : 'Unsorted'),
-        single: st === en
-      });
-    } catch (e) { errs.push({ lineNo, raw: line, reason: 'not valid JSON' }); }
+    var o;
+    try { o = JSON.parse(line); } catch (e) { errs.push({ lineNo: lineNo, raw: line, reason: 'not valid JSON' }); return; }
+    var st = parseISO(o.start), en = parseISO(o.end);
+    if (st == null || en == null) { errs.push({ lineNo: lineNo, raw: line, reason: 'dates must be YYYY-MM-DD' }); return; }
+    if (en < st) { errs.push({ lineNo: lineNo, raw: line, reason: 'ends before it starts' }); return; }
+    var name = typeof o.event === 'string' ? o.event.trim() : '';
+    if (!name) { errs.push({ lineNo: lineNo, raw: line, reason: 'no event name' }); return; }
+    var fl = !!o.fl;
+    var flm = name.match(/\s*[-–—]\s*fl$/i);
+    if (flm) { fl = true; name = name.slice(0, flm.index).trim(); }
+    var res = lookupName(name);
+    out.push({
+      id: out.length, line: lineNo, name: res.name, fl: fl, flHint: false,
+      start: st, end: en, days: Math.round((en - st) / MS) + 1,
+      section: res.known ? res.section : (typeof o.section === 'string' && o.section.trim() ? o.section.trim() : 'Unsorted'),
+      single: st === en
+    });
   }
 
   function assignPairs(evs, wlist) {
-    const vf = evs.filter(e => e.name === 'Village Fair');
-    const fh = evs.filter(e => e.name === 'Fishing Hard Worker Event');
-    const fmt = e => { const a = new Date(e.start), b = new Date(e.end); return pad2(a.getUTCDate()) + '/' + pad2(a.getUTCMonth() + 1) + '–' + pad2(b.getUTCDate()) + '/' + pad2(b.getUTCMonth() + 1); };
-    vf.forEach(v => {
-      const partners = fh.filter(f => f.start <= v.end && v.start <= f.end);
-      if (!partners.length) { wlist.push({ line: v.line, text: 'Village Fair ' + fmt(v) + ' has no Fishing Hard Worker Event partner', kind: 'pair' }); return; }
-      const taggedF = partners.find(f => f.fl || f.flHint);
+    var vf = evs.filter(function (e) { return e.name === 'Village Fair'; });
+    var fh = evs.filter(function (e) { return e.name === 'Fishing Hard Worker Event'; });
+    function fmt(e) {
+      var a = new Date(e.start), b = new Date(e.end);
+      return pad2(a.getUTCDate()) + '/' + pad2(a.getUTCMonth() + 1) + '–' + pad2(b.getUTCDate()) + '/' + pad2(b.getUTCMonth() + 1);
+    }
+    vf.forEach(function (v) {
+      var partners = fh.filter(function (f) { return f.start <= v.end && v.start <= f.end; });
+      if (!partners.length) {
+        wlist.push({ line: v.line, text: 'Village Fair ' + fmt(v) + ' has no Fishing Hard Worker Event partner — check the pair', kind: 'pair' });
+        return;
+      }
+      var taggedF = null;
+      for (var i = 0; i < partners.length; i++) {
+        if (partners[i].fl || partners[i].flHint) { taggedF = partners[i]; break; }
+      }
       if (taggedF) { taggedF.fl = true; v.fl = false; }
       else v.fl = true;
     });
-    fh.forEach(f => { f.flHint = false; });
+    fh.forEach(function (f) { f.flHint = false; });
   }
 
-  function parseAll() {
-    const lines = input.value.replace(/\r/g, '').split('\n');
-    const out = [], errs = [], wlist = [];
-    lines.forEach((raw, i) => {
-      const line = raw.trim();
+  function runParse() {
+    var lines = input.value.replace(/\r/g, '').split('\n');
+    var out = [], errs = [], wlist = [];
+    lines.forEach(function (raw, i) {
+      var line = raw.trim();
       if (!line) return;
-      if (line.startsWith('{')) { parseJsonLine(line, i + 1, out, errs, wlist); return; }
-      for (const fx of LINE_FIXES) {
+      if (line.charAt(0) === '{') { parseJsonLine(line, i + 1, out, errs, wlist); return; }
+      for (var k = 0; k < LINE_FIXES.length; k++) {
+        var fx = LINE_FIXES[k];
         if (fx.re.test(line)) {
           wlist.push({ line: i + 1, text: fx.note, kind: 'fix' });
-          fx.to().forEach(rep => processLine(rep, i + 1, out, errs, wlist));
+          var reps = fx.to();
+          for (var r = 0; r < reps.length; r++) processLine(reps[r], i + 1, out, errs, wlist);
           return;
         }
       }
       processLine(line, i + 1, out, errs, wlist);
     });
     assignPairs(out, wlist);
-    const seen = new Map();
-    out.forEach(e => {
-      const k = e.start + '|' + e.end + '|' + e.name + '|' + (e.fl ? 1 : 0);
-      if (seen.has(k)) wlist.push({ line: e.line, text: 'duplicate line: ' + e.name + ' (' + seen.get(k) + ' & ' + e.line + ')', kind: 'dup' });
+    var seen = new Map();
+    out.forEach(function (e) {
+      var k = e.start + '|' + e.end + '|' + e.name + '|' + (e.fl ? 1 : 0);
+      if (seen.has(k)) wlist.push({ line: e.line, text: 'duplicate line — ' + e.name + ' (lines ' + seen.get(k) + ' & ' + e.line + ')', kind: 'dup' });
       else seen.set(k, e.line);
     });
-    parsed = out; skipped = errs.length; warns = wlist;
+    parsed = out; errsCache = errs; warns = wlist;
     renderAll(lines);
   }
 
-  /* ── output ── */
-  const pad2 = n => (n < 10 ? '0' : '') + n;
-  function fmtRD(ts) { const d = new Date(ts); let s = pad2(d.getUTCDate()) + '/' + pad2(d.getUTCMonth() + 1); if (d.getUTCFullYear() > 0) s += '/' + d.getUTCFullYear(); return s; }
-  function isoD(ts) { const d = new Date(ts); return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate()); }
-
-  function readableHTML(e) {
-    const a = esc(fmtRD(e.start));
-    const flx = e.fl ? '<span class="fl"> - FL</span>' : '';
-    if (e.single) return '<span class="d">' + a + '</span><span class="sep"> · </span><span class="ev">' + esc(e.name) + '</span>' + flx;
-    return '<span class="d">' + a + '</span><span class="ar"> → </span><span class="d">' + esc(fmtRD(e.end)) + '</span><span class="sep"> · </span><span class="ev">' + esc(e.name) + '</span>' + flx;
-  }
-  function machineHTML(e) {
-    const kv = (k, v) => '<span class="k">"' + k + '"</span><span class="p">:</span><span class="v">"' + esc(v) + '"</span><span class="p">,</span>';
-    let s = '<span class="p">{</span>' + kv('start', isoD(e.start)) + kv('end', isoD(e.end)) + kv('event', e.name) + kv('section', e.section);
-    if (e.fl) s += '<span class="k">"fl"</span><span class="p">:</span><span class="v">true</span>';
-    return s + '<span class="p">}</span>';
-  }
-  function machineLine(e) {
-    const o = { start: isoD(e.start), end: isoD(e.end), event: e.name, section: e.section };
-    if (e.fl) o.fl = true;
-    return JSON.stringify(o);
-  }
-  function currentMachine() { return parsed.map(machineLine); }
-
-  const MAX_RENDER = 400;
-  function renderAll(lines) {
-    gutterPre.innerHTML = buildGutter(lines);
-    renderErrors();
-    renderWarns();
-    outLines.innerHTML = '';
-    if (!parsed.length) { outEmpty.style.display = 'flex'; outMore.hidden = true; }
-    else {
-      outEmpty.style.display = 'none';
-      const frag = document.createDocumentFragment();
-      parsed.slice(0, MAX_RENDER).forEach(e => {
-        const row = document.createElement('div');
-        row.className = 'out-line';
-        const no = document.createElement('span'); no.className = 'out-no'; no.textContent = e.line;
-        const tx = document.createElement('span'); tx.className = 'out-text';
-        tx.innerHTML = mode === 'readable' ? readableHTML(e) : machineHTML(e);
-        row.appendChild(no); row.appendChild(tx);
-        frag.appendChild(row);
-      });
-      outLines.appendChild(frag);
-      if (parsed.length > MAX_RENDER) {
-        outMore.hidden = false;
-        outMore.textContent = 'showing the first ' + MAX_RENDER + ' of ' + parsed.length + ' lines — copy & save always include every one';
-      } else outMore.hidden = true;
-    }
-    const n = lines.filter(l => l.trim()).length;
-    inputMeta.innerHTML = n + (n === 1 ? ' line' : ' lines') + (skipped ? ' · <span class="flag">' + skipped + ' unreadable</span>' : '');
-    updateFileBar();
-  }
+  /* ── rendering ── */
   function buildGutter(lines) {
-    const bad = {};
-    const badSet = new Set();
-    warns.forEach(w => { if (w.kind === 'name' || w.kind === 'dup' || w.kind === 'pair') badSet.add(w.line); if (w.kind === 'dup') String(w.line).match(/\d+/g)?.forEach(x => badSet.add(+x)); });
-    errorsBox hiddenCheck();
-    let html = '';
-    for (let i = 1; i <= lines.length; i++) {
+    var badSet = new Set();
+    warns.forEach(function (w) {
+      if (w.kind === 'fix') return;
+      if (w.line != null) badSet.add(w.line);
+    });
+    var html = '';
+    for (var i = 1; i <= lines.length; i++) {
       html += badSet.has(i) ? '<span class="bad">' + i + '</span>' : i;
       if (i < lines.length) html += '\n';
     }
-    return html;
+    gutterPre.innerHTML = html;
   }
-  function errorsBoxHiddenCheck() {} /* placeholder to keep buildGutter tidy */
 
   function renderErrors() {
-    if (!skipped) { errorsBox.hidden = true; errorsBox.innerHTML = ''; return; }
+    if (!errsCache.length) { errorsBox.hidden = true; errorsBox.innerHTML = ''; return; }
     errorsBox.hidden = false;
-    let html = '<span class="err-head">' + skipped + (skipped === 1 ? ' line' : ' lines') + ' couldn’t be read — click one to jump to it</span>';
-    parsed; /* noop */
-    errsCache.slice(0, 8).forEach(e => {
+    var html = '<span class="err-head">' + errsCache.length + (errsCache.length === 1 ? ' line' : ' lines') + ' couldn’t be read — click one to jump to it</span>';
+    errsCache.slice(0, 8).forEach(function (e) {
       html += '<button type="button" class="err-line" data-line="' + e.lineNo + '" title="' + esc(e.raw) + ' — ' + esc(e.reason) + '">' +
         '<b>line ' + e.lineNo + '</b><span class="err-raw">' + esc(clip(e.raw, 42)) + '</span><span class="err-why">' + esc(e.reason) + '</span></button>';
     });
-    if (errsCache.length > 8) html += '<span class="err-line" style="cursor:default"><b></b><span class="err-why">+ ' + (errsCache.length - 8) + ' more</span></span>';
+    if (errsCache.length > 8) html += '<span class="err-line" style="cursor:default"><span class="err-why">+ ' + (errsCache.length - 8) + ' more</span></span>';
     errorsBox.innerHTML = html;
   }
-  let errsCache = [];
 
   function renderWarns() {
     warnsSlot.innerHTML = '';
     if (!warns.length) return;
-    const head = warns.length + (warns.length === 1 ? ' note' : ' notes');
-    let html = '<div class="warns"><b>' + head + '</b>';
-    warns.slice(0, 10).forEach(w => {
-      const ln = w.line != null ? '<span>line ' + w.line + '</span>' : '';
-      const cls = w.kind === 'fix' ? 'wfix' : '';
-      const clickable = w.kind !== 'fix' && w.line != null;
-      html += clickable
-        ? '<button type="button" class="wrow" data-line="' + w.line + '">' + ln + '<span>' + esc(w.text) + '</span></button>'
-        : '<span class="wrow ' + cls + '">' + ln + '<span>' + esc(w.text) + '</span></span>';
+    var html = '<div class="warns"><b>' + warns.length + (warns.length === 1 ? ' note' : ' notes') + '</b>';
+    warns.slice(0, 10).forEach(function (w) {
+      var ln = (w.line != null) ? '<span>line ' + w.line + '</span>' : '';
+      if (w.kind === 'fix') {
+        html += '<span class="wrow wfix">' + ln + '<span>' + esc(w.text) + '</span></span>';
+      } else {
+        html += '<button type="button" class="wrow" data-line="' + w.line + '">' + ln + '<span>' + esc(w.text) + '</span></button>';
+      }
     });
-    if (warns.length > 10) html += '<span class="wrow"><span>+ ' + (warns.length - 10) + ' more — see the browser console for all of them</span></span>';
+    if (warns.length > 10) html += '<span class="wrow"><span>+ ' + (warns.length - 10) + ' more — all of them are in the browser console</span></span>';
     html += '</div>';
     warnsSlot.innerHTML = html;
-    console.warn('Datepress notes:', warns);
+    if (warns.length > 10) console.warn('Datepress notes:', warns);
   }
 
-  function selectLine(n) {
-    const lines = input.value.replace(/\r/g, '').split('\n');
-    if (n < 1 || n > lines.length) return;
-    let start = 0;
-    for (let i = 0; i < n - 1; i++) start += lines[i].length + 1;
-    input.focus();
-    input.setSelectionRange(start, start + lines[n - 1].length);
+  function readableHTML(e) {
+    var a = esc(fmtRD(e.start));
+    var flx = e.fl ? '<span class="fl"> - FL</span>' : '';
+    if (e.single) return '<span class="d">' + a + '</span><span class="sep"> · </span><span class="ev">' + esc(e.name) + '</span>' + flx;
+    return '<span class="d">' + a + '</span><span class="ar"> → </span><span class="d">' + esc(fmtRD(e.end)) + '</span><span class="sep"> · </span><span class="ev">' + esc(e.name) + '</span>' + flx;
+  }
+  function machineHTML(e) {
+    function kv(k, v) {
+      return '<span class="k">"' + k + '"</span><span class="p">:</span><span class="v">"' + esc(v) + '"</span><span class="p">,</span>';
+    }
+    var s = '<span class="p">{</span>' + kv('start', isoD(e.start)) + kv('end', isoD(e.end)) + kv('event', e.name) + kv('section', e.section);
+    if (e.fl) s += '<span class="k">"fl"</span><span class="p">:</span><span class="v">true</span>';
+    return s + '<span class="p">}</span>';
   }
 
-  /* ── file builder ── */
+  function renderOutput() {
+    outLines.innerHTML = '';
+    if (!parsed.length) { outEmpty.style.display = 'flex'; outMore.hidden = true; return; }
+    outEmpty.style.display = 'none';
+    var frag = document.createDocumentFragment();
+    parsed.slice(0, MAX_RENDER).forEach(function (e) {
+      var row = document.createElement('div');
+      row.className = 'out-line';
+      var no = document.createElement('span');
+      no.className = 'out-no'; no.textContent = e.line;
+      var tx = document.createElement('span');
+      tx.className = 'out-text';
+      tx.innerHTML = mode === 'readable' ? readableHTML(e) : machineHTML(e);
+      row.appendChild(no); row.appendChild(tx);
+      frag.appendChild(row);
+    });
+    outLines.appendChild(frag);
+    if (parsed.length > MAX_RENDER) {
+      outMore.hidden = false;
+      outMore.textContent = 'showing the first ' + MAX_RENDER + ' of ' + parsed.length + ' lines — copy & save always include every one';
+    } else outMore.hidden = true;
+  }
+
+  function renderAll(lines) {
+    buildGutter(lines);
+    renderErrors();
+    renderWarns();
+    renderOutput();
+    var n = lines.filter(function (l) { return l.trim(); }).length;
+    inputMeta.innerHTML = n + (n === 1 ? ' line' : ' lines') + (errsCache.length ? ' · <span class="flag">' + errsCache.length + ' unreadable</span>' : '');
+    updateFileBar();
+  }
+
+  /* ── output text & file builder ── */
+  function machineLine(e) {
+    var o = { start: isoD(e.start), end: isoD(e.end), event: e.name, section: e.section };
+    if (e.fl) o.fl = true;
+    return JSON.stringify(o);
+  }
+  function currentMachine() { return parsed.map(machineLine); }
+  function currentReadable() {
+    return parsed.map(function (e) {
+      var base = e.single ? fmtRD(e.start) : fmtRD(e.start) + ' → ' + fmtRD(e.end);
+      return base + ' · ' + e.name + (e.fl ? ' - FL' : '');
+    });
+  }
   function updateFileBar() {
     fileBar.hidden = fileLines.length === 0;
-    $('#fbCount').textContent = fileLines.length;
+    document.getElementById('fbCount').textContent = fileLines.length;
   }
-  $('#btnAdd').addEventListener('click', () => {
-    const lines = currentMachine();
-    if (!lines.length) { showStamp('empty'); return; }
-    fileLines = fileLines.concat(lines);
-    saveFile(); updateFileBar();
-    input.value = '';
-    errsCache = [];
-    parseAll();
-    showStamp('added ' + lines.length);
-  });
-  $('#fbCopy').addEventListener('click', () => copyText(fileLines.join('\n'), () => showStamp('file copied')));
-  $('#fbSave').addEventListener('click', () => {
-    if (!fileLines.length) { showStamp('empty'); return; }
-    download(fileLines.join('\n') + '\n', 'events.jsonl');
-    showStamp('saved');
-  });
-  $('#fbClear').addEventListener('click', () => { fileLines = []; saveFile(); updateFileBar(); showStamp('cleared'); });
 
-  /* ── copy / save / drop ── */
-  function copyText(text, done) {
-    if (!text) { showStamp('empty'); return; }
-    function fallback() {
-      const ta = document.createElement('textarea');
-      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      let ok = false;
-      try { ok = document.execCommand('copy'); } catch (e) {}
-      document.body.removeChild(ta);
-      done(ok);
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => done(true), fallback);
-    } else fallback();
-  }
-  function download(text, name) {
-    const blob = new Blob([text], { type: 'application/x-ndjson' });
-    const a = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    a.href = url; a.download = name;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  }
+  /* ── actions ── */
   function showStamp(text) {
     stampEl.textContent = text;
     stampEl.classList.remove('show');
     void stampEl.offsetWidth;
     stampEl.classList.add('show');
     clearTimeout(stampTimer);
-    stampTimer = setTimeout(() => stampEl.classList.remove('show'), 1150);
+    stampTimer = setTimeout(function () { stampEl.classList.remove('show'); }, 1150);
   }
-  $('#btnCopy').addEventListener('click', () => {
-    const text = mode === 'machine' ? currentMachine().join('\n') : parsed.map(e => {
-      if (e.single) return fmtRD(e.start) + ' · ' + e.name + (e.fl ? ' - FL' : '');
-      return fmtRD(e.start) + ' → ' + fmtRD(e.end) + ' · ' + e.name + (e.fl ? ' - FL' : '');
-    }).join('\n');
-    copyText(text, ok => showStamp(ok ? 'copied' : 'copy failed'));
+  function copyText(text, done) {
+    if (!text) { showStamp('empty'); return; }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    } else fallback();
+  }
+  function download(text, name) {
+    var blob = new Blob([text], { type: 'application/x-ndjson' });
+    var a = document.createElement('a');
+    var url = URL.createObjectURL(blob);
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }
+  function selectLine(n) {
+    var lines = input.value.replace(/\r/g, '').split('\n');
+    if (n < 1 || n > lines.length) return;
+    var start = 0;
+    for (var i = 0; i < n - 1; i++) start += lines[i].length + 1;
+    input.focus();
+    input.setSelectionRange(start, start + lines[n - 1].length);
+  }
+
+  document.getElementById('btnCopy').addEventListener('click', function () {
+    var text = mode === 'machine' ? currentMachine().join('\n') : currentReadable().join('\n');
+    copyText(text, function (ok) { showStamp(ok ? 'copied' : 'copy failed'); });
   });
-  $('#btnSave').addEventListener('click', () => {
-    const text = currentMachine().join('\n');
+  document.getElementById('btnSave').addEventListener('click', function () {
+    var text = currentMachine().join('\n');
     if (!text) { showStamp('empty'); return; }
     download(text + '\n', mode === 'machine' ? 'events.jsonl' : 'events-readable.txt');
     showStamp('saved');
   });
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); $('#btnCopy').click(); }
+  document.getElementById('btnAdd').addEventListener('click', function () {
+    var lines = currentMachine();
+    if (!lines.length) { showStamp('empty'); return; }
+    fileLines = fileLines.concat(lines);
+    saveFile(); updateFileBar();
+    input.value = '';
+    runParse(); saveState();
+    showStamp('added ' + lines.length);
+  });
+  document.getElementById('fbCopy').addEventListener('click', function () {
+    copyText(fileLines.join('\n'), function (ok) { showStamp(ok ? 'file copied' : 'copy failed'); });
+  });
+  document.getElementById('fbSave').addEventListener('click', function () {
+    if (!fileLines.length) { showStamp('empty'); return; }
+    download(fileLines.join('\n') + '\n', 'events.jsonl');
+    showStamp('saved');
+  });
+  document.getElementById('fbClear').addEventListener('click', function () {
+    fileLines = []; saveFile(); updateFileBar(); showStamp('cleared');
   });
 
-  let dragDepth = 0;
-  addEventListener('dragenter', e => { e.preventDefault(); if (++dragDepth === 1) $('#drop').classList.add('on'); });
-  addEventListener('dragover', e => e.preventDefault());
-  addEventListener('dragleave', e => { e.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; $('#drop').classList.remove('on'); } });
-  addEventListener('drop', e => {
-    e.preventDefault(); dragDepth = 0; $('#drop').classList.remove('on');
-    const f = e.dataTransfer.files[0];
-    if (f) f.text().then(t => { input.value = t; errsCache = []; parseAll(); saveState(); });
+  document.getElementById('btnSample').addEventListener('click', function () {
+    input.value = SAMPLE; runParse(); saveState(); input.focus();
+  });
+  document.getElementById('btnClear').addEventListener('click', function () {
+    input.value = ''; runParse(); saveState(); input.focus();
   });
 
-  /* ── wiring ── */
-  input.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => { collectErrs(); parseAll(); saveState(); }, 130);
-  });
-  function collectErrs() { /* errors are rebuilt inside parseAll; cache for render */ }
-  input.addEventListener('scroll', () => { gutterPre.scrollTop = input.scrollTop; });
-  yearInput.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => { collectErrs(); parseAll(); saveState(); }, 160);
-  });
-  document.querySelectorAll('#modeControl button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      mode = btn.dataset.mode;
-      document.querySelectorAll('#modeControl button').forEach(b => b.classList.toggle('active', b === btn));
-      $('#modeMeta').textContent = mode === 'readable' ? 'corrected list' : 'json lines';
-      renderAll(input.value.replace(/\r/g, '').split('\n'));
+  Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (btn) {
+    btn.addEventListener('click', function () {
+      mode = btn.getAttribute('data-mode');
+      Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      document.getElementById('modeMeta').textContent = mode === 'readable' ? 'corrected list' : 'json lines';
+      renderOutput();
       saveState();
     });
   });
-  $('#btnSample').addEventListener('click', () => { input.value = SAMPLE; errsCache = []; parseAll(); input.focus(); saveState(); });
-  $('#btnClear').addEventListener('click', () => { input.value = ''; errsCache = []; parseAll(); input.focus(); saveState(); });
-  errorsBox.addEventListener('click', e => {
-    const b = e.target.closest('.err-line');
-    if (b && b.dataset.line) selectLine(+b.dataset.line);
+
+  errorsBox.addEventListener('click', function (e) {
+    var b = e.target.closest('.err-line');
+    if (b && b.getAttribute('data-line')) selectLine(+b.getAttribute('data-line'));
   });
-  warnsSlot.addEventListener('click', e => {
-    const b = e.target.closest('.wrow[data-line]');
-    if (b) selectLine(+b.dataset.line);
+  warnsSlot.addEventListener('click', function (e) {
+    var b = e.target.closest('button.wrow');
+    if (b && b.getAttribute('data-line')) selectLine(+b.getAttribute('data-line'));
   });
 
-  /* errors need caching between parse and render — patch parseAll to keep them */
-  const _parseAll = parseAll;
-  parseAll = function () {
-    const lines = input.value.replace(/\r/g, '').split('\n');
-    const orig = errsCache;
-    _parseAll();
-    errsCache = lastErrs;
-  };
-  let lastErrs = [];
-  const _process = processLine;
-  /* simpler: wrap parseAll body — re-declare cleanly below */
-
-  /* Because error caching got tangled above, here is the definitive loop: */
-  function runParse() {
-    const lines = input.value.replace(/\r/g, '').split('\n');
-    const out = [], errs = [], wlist = [];
-    lines.forEach((raw, i) => {
-      const line = raw.trim();
-      if (!line) return;
-      if (line.startsWith('{')) { parseJsonLine(line, i + 1, out, errs, wlist); return; }
-      for (const fx of LINE_FIXES) {
-        if (fx.re.test(line)) {
-          wlist.push({ line: i + 1, text: fx.note, kind: 'fix' });
-          fx.to().forEach(rep => processLine(rep, i + 1, out, errs, wlist));
-          return;
-        }
-      }
-      processLine(line, i + 1, out, errs, wlist);
-    });
-    assignPairs(out, wlist);
-    const seen = new Map();
-    out.forEach(e => {
-      const k = e.start + '|' + e.end + '|' + e.name + '|' + (e.fl ? 1 : 0);
-      if (seen.has(k)) wlist.push({ line: e.line, text: 'duplicate line: ' + e.name + ' (' + seen.get(k) + ' & ' + e.line + ')', kind: 'dup' });
-      else seen.set(k, e.line);
-    });
-    parsed = out; skipped = errs.length; warns = wlist; lastErrs = errs; errsCache = errs;
-    renderAll(lines);
-  }
-  /* rewire live handlers to the clean loop */
-  input.addEventListener('input', () => {
+  input.addEventListener('input', function () {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => { runParse(); saveState(); }, 130);
+    debounceTimer = setTimeout(function () { runParse(); saveState(); }, 130);
   });
-  yearInput.addEventListener('input', () => {
+  input.addEventListener('scroll', function () { gutterPre.scrollTop = input.scrollTop; });
+  yearInput.addEventListener('input', function () {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => { runParse(); saveState(); }, 160);
+    debounceTimer = setTimeout(function () { runParse(); saveState(); }, 160);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); document.getElementById('btnCopy').click(); }
+  });
+
+  var dragDepth = 0;
+  addEventListener('dragenter', function (e) { e.preventDefault(); if (++dragDepth === 1) document.getElementById('drop').classList.add('on'); });
+  addEventListener('dragover', function (e) { e.preventDefault(); });
+  addEventListener('dragleave', function (e) { e.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; document.getElementById('drop').classList.remove('on'); } });
+  addEventListener('drop', function (e) {
+    e.preventDefault(); dragDepth = 0; document.getElementById('drop').classList.remove('on');
+    var f = e.dataTransfer.files[0];
+    if (f) f.text().then(function (t) { input.value = t; runParse(); saveState(); });
   });
 
   /* ── init ── */
   loadState();
   if (!(yearInput.value || '').trim()) yearInput.value = String(new Date().getFullYear());
-  document.querySelectorAll('#modeControl button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  $('#modeMeta').textContent = mode === 'readable' ? 'corrected list' : 'json lines';
+  Array.prototype.forEach.call(document.querySelectorAll('#modeControl button'), function (b) {
+    b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+  });
+  document.getElementById('modeMeta').textContent = mode === 'readable' ? 'corrected list' : 'json lines';
   if (!(input.value || '').trim()) input.value = SAMPLE;
   runParse();
   updateFileBar();
